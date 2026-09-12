@@ -100,6 +100,84 @@ describe('Feature: 小学生ヘア＆ファッションタイプ診断 (BDD)', (
     });
   });
 
+  describe('Scenario: 伝説のシークレットスタイルの判定', () => {
+    it('Given 虹色・スイーツ・夢気分の回答のとき、When 診断すると、Then 奇跡の幻獣！レインボーユニコーンエンジェルが覚醒すること', () => {
+      const answers = UserAnswersSchema.parse({
+        favoriteColor: 'rainbow',
+        favoriteFood: 'sweets_parfait',
+        weekendActivity: 'nature_walk',
+        currentMood: 'dreamy',
+        hairLength: 'long',
+      });
+
+      const result = service.diagnose(answers);
+      expect(result.typeId).toBe(StyleTypeId.SECRET_UNICORN);
+      expect(result.isSecret).toBe(true);
+      expect(result.rarity).toBe('Secret');
+      expect(result.typeName).toContain('ユニコーン');
+    });
+
+    it('Given ピンク・スイーツ・ダンス・キラキラ気分のとき、Then ミラクル☆マジカルガールが覚醒すること', () => {
+      const answers = UserAnswersSchema.parse({
+        favoriteColor: 'pink',
+        favoriteFood: 'sweets_parfait',
+        weekendActivity: 'dance_tiktok',
+        currentMood: 'sparkle_excited',
+        hairLength: 'medium',
+      });
+
+      const result = service.diagnose(answers);
+      expect(result.typeId).toBe(StyleTypeId.SECRET_MAGICAL);
+      expect(result.isSecret).toBe(true);
+      expect(result.typeName).toContain('マジカルガール');
+    });
+
+    it('Given シルバー・ゲーム・クールのとき、Then 電脳サイバーフェアリーが覚醒すること', () => {
+      const answers = UserAnswersSchema.parse({
+        favoriteColor: 'silver',
+        favoriteFood: 'pizza',
+        weekendActivity: 'game_youtube',
+        currentMood: 'cool_calm',
+        hairLength: 'short',
+      });
+
+      const result = service.diagnose(answers);
+      expect(result.typeId).toBe(StyleTypeId.SECRET_CYBER);
+      expect(result.isSecret).toBe(true);
+      expect(result.typeName).toContain('電脳サイバー');
+    });
+
+    it('Given ベージュ・博物館・リラックスのとき、Then ファラオエンプレス女王が覚醒すること', () => {
+      const answers = UserAnswersSchema.parse({
+        favoriteColor: 'beige',
+        favoriteFood: 'soup_onigiri',
+        weekendActivity: 'library_museum',
+        currentMood: 'relax_gentle',
+        hairLength: 'medium',
+      });
+
+      const result = service.diagnose(answers);
+      expect(result.typeId).toBe(StyleTypeId.SECRET_PHARAOH);
+      expect(result.isSecret).toBe(true);
+      expect(result.typeName).toContain('ファラオエンプレス');
+    });
+
+    it('Given 紫・自然散歩・夢気分のとき、Then コズミックギャラクシーが覚醒すること', () => {
+      const answers = UserAnswersSchema.parse({
+        favoriteColor: 'purple',
+        favoriteFood: 'fruits',
+        weekendActivity: 'nature_walk',
+        currentMood: 'dreamy',
+        hairLength: 'long',
+      });
+
+      const result = service.diagnose(answers);
+      expect(result.typeId).toBe(StyleTypeId.SECRET_COSMIC);
+      expect(result.isSecret).toBe(true);
+      expect(result.typeName).toContain('コズミックギャラクシー');
+    });
+  });
+
   describe('Scenario: スキーマバリデーションによる不正データの検出', () => {
     it('Given 必須の好きな色が空文字である無効な回答のとき、When スキーマ検証すると、Then ZodErrorがスローされること', () => {
       const invalidAnswers = {

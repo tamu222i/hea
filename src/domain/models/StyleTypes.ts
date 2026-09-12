@@ -1,10 +1,18 @@
-export enum StyleTypeId {
-  POP_SPORTY = 'pop_sporty',
-  SWEET_GIRLY = 'sweet_girly',
-  COOL_CASUAL = 'cool_casual',
-  NATURAL_PURE = 'natural_pure',
-  TRENDY_IDOL = 'trendy_idol',
-}
+export type StyleTypeId = string;
+
+export const StyleTypeId = {
+  POP_SPORTY: 'pop_sporty',
+  SWEET_GIRLY: 'sweet_girly',
+  COOL_CASUAL: 'cool_casual',
+  NATURAL_PURE: 'natural_pure',
+  TRENDY_IDOL: 'trendy_idol',
+  // 5 Secret Styles
+  SECRET_MAGICAL: 'secret_magical',
+  SECRET_CYBER: 'secret_cyber',
+  SECRET_PHARAOH: 'secret_pharaoh',
+  SECRET_COSMIC: 'secret_cosmic',
+  SECRET_UNICORN: 'secret_unicorn',
+} as const;
 
 export interface ColorPaletteItem {
   id: string;
@@ -57,6 +65,11 @@ export interface StyleProfile {
   typeName: string;
   catchphrase: string;
   description: string;
+  category: string;
+  categoryIcon?: string;
+  isSecret?: boolean;
+  secretHint?: string;
+  rarity?: 'Normal' | 'Rare' | 'Secret';
   personalityTraits: string[];
   recommendedColors: ColorPaletteItem[];
   hairStyles: HairStyle[];
@@ -66,3 +79,4 @@ export interface StyleProfile {
   luckyItem: string;
   imageUrl?: string;
 }
+

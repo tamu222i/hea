@@ -195,45 +195,163 @@ export const StyleIllustration: React.FC<StyleIllustrationProps> = ({ typeId, cl
         <div className={`relative rounded-3xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-fuchsia-100 via-purple-50 to-pink-100 shadow-inner border border-purple-200 ${className}`}>
           <svg viewBox="0 0 200 200" className="w-full h-full p-2" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="100" cy="100" r="88" fill="#F3E8FF" fillOpacity="0.5" />
-            {/* Sparkle stars */}
             <path d="M152 50 L155 58 L163 61 L155 64 L152 72 L149 64 L141 61 L149 58 Z" fill="#A855F7" />
             <path d="M38 135 L40 140 L45 142 L40 144 L38 149 L36 144 L31 142 L36 140 Z" fill="#EC4899" />
             
-            {/* Bear Ear Buns (Double top buns) */}
             <circle cx="68" cy="68" r="16" fill="#6B21A8" />
             <circle cx="132" cy="68" r="16" fill="#6B21A8" />
             <circle cx="68" cy="68" r="10" fill="#9333EA" />
             <circle cx="132" cy="68" r="10" fill="#9333EA" />
-            {/* Heart Pins */}
             <path d="M62 62 C62 59, 66 56, 68 61 C70 56, 74 59, 74 62 C74 67, 68 71, 68 71 C68 71, 62 67, 62 62 Z" fill="#F43F5E" />
             <path d="M126 62 C126 59, 130 56, 132 61 C134 56, 138 59, 138 62 C138 67, 132 71, 132 71 C132 71, 126 67, 126 62 Z" fill="#F43F5E" />
 
-            {/* Main Hair */}
             <ellipse cx="100" cy="108" rx="42" ry="44" fill="#581C87" />
-
-            {/* Face */}
             <ellipse cx="100" cy="112" rx="33" ry="33" fill="#FED7AA" />
-            {/* Cheeks with sparkle */}
             <circle cx="83" cy="122" r="6.5" fill="#EC4899" fillOpacity="0.4" />
             <circle cx="117" cy="122" r="6.5" fill="#EC4899" fillOpacity="0.4" />
-            {/* Idol Wink/Sparkle Eyes */}
-            {/* Right eye open with star */}
             <ellipse cx="114" cy="112" rx="5.5" ry="6.5" fill="#2E1065" />
             <circle cx="113" cy="110" r="2" fill="#FFFFFF" />
-            {/* Left eye wink */}
             <path d="M80 112 Q86 106 92 112" stroke="#2E1065" strokeWidth="3" strokeLinecap="round" />
-            {/* Playful open smile */}
             <path d="M93 124 Q100 134 107 124 Z" fill="#E11D48" stroke="#2E1065" strokeWidth="2" />
-
-            {/* Idol See-through Bangs */}
             <path d="M72 90 Q100 82 128 90 C120 100, 108 97, 100 95 C92 97, 80 100, 72 90 Z" fill="#7E22CE" />
-
-            {/* Preppy Idol Vest with Plaid & Chain */}
             <path d="M76 144 Q100 152 124 144 L145 185 Q100 195 55 185 Z" fill="#9333EA" />
             <path d="M88 147 L100 165 L112 147" fill="#FFFFFF" />
             <path d="M97 155 L100 162 L103 155 Z" fill="#F43F5E" />
           </svg>
         </div>
       );
+
+    case StyleTypeId.SECRET_UNICORN:
+      return (
+        <div className={`relative rounded-3xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-pink-200 via-purple-100 to-sky-200 shadow-xl border-2 border-amber-300 animate-pulse ${className}`}>
+          <svg viewBox="0 0 200 200" className="w-full h-full p-2" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="88" fill="#FDF2F8" fillOpacity="0.6" />
+            <polygon points="100,18 108,60 92,60" fill="#FBBF24" stroke="#F59E0B" strokeWidth="2" />
+            <ellipse cx="100" cy="112" rx="46" ry="46" fill="#F472B6" />
+            <ellipse cx="100" cy="114" rx="34" ry="34" fill="#FEF3C7" />
+            <circle cx="82" cy="120" r="6" fill="#F43F5E" fillOpacity="0.4" />
+            <circle cx="118" cy="120" r="6" fill="#F43F5E" fillOpacity="0.4" />
+            <ellipse cx="85" cy="112" rx="5" ry="6" fill="#4A044E" />
+            <circle cx="84" cy="110" r="2" fill="#FFFFFF" />
+            <ellipse cx="115" cy="112" rx="5" ry="6" fill="#4A044E" />
+            <circle cx="114" cy="110" r="2" fill="#FFFFFF" />
+            <path d="M94 125 Q100 132 106 125" stroke="#4A044E" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M60 70 Q40 50 20 80 Q50 90 65 85 Z" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="2" />
+            <path d="M140 70 Q160 50 180 80 Q150 90 135 85 Z" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="2" />
+            <text x="100" y="185" textAnchor="middle" fontSize="14" fontWeight="900" fill="#BE185D">🦄 UNICORN</text>
+          </svg>
+        </div>
+      );
+
+    case StyleTypeId.SECRET_MAGICAL:
+      return (
+        <div className={`relative rounded-3xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-rose-200 via-pink-100 to-amber-100 shadow-xl border-2 border-pink-400 ${className}`}>
+          <svg viewBox="0 0 200 200" className="w-full h-full p-2" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="88" fill="#FFF1F2" fillOpacity="0.6" />
+            <path d="M100 25 L106 42 L124 42 L110 52 L115 69 L100 58 L85 69 L90 52 L76 42 L94 42 Z" fill="#F43F5E" />
+            <ellipse cx="100" cy="110" rx="42" ry="44" fill="#FB7185" />
+            <ellipse cx="100" cy="112" rx="33" ry="33" fill="#FED7AA" />
+            <ellipse cx="85" cy="112" rx="5" ry="6" fill="#881337" />
+            <circle cx="84" cy="110" r="2" fill="#FFFFFF" />
+            <ellipse cx="115" cy="112" rx="5" ry="6" fill="#881337" />
+            <circle cx="114" cy="110" r="2" fill="#FFFFFF" />
+            <path d="M93 124 Q100 134 107 124 Z" fill="#E11D48" />
+            <text x="100" y="185" textAnchor="middle" fontSize="13" fontWeight="900" fill="#E11D48">💖 MAGICAL GIRL</text>
+          </svg>
+        </div>
+      );
+
+    case StyleTypeId.SECRET_CYBER:
+      return (
+        <div className={`relative rounded-3xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-cyan-300 via-slate-900 to-emerald-300 shadow-xl border-2 border-cyan-400 ${className}`}>
+          <svg viewBox="0 0 200 200" className="w-full h-full p-2" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="200" height="200" fill="#090D16" />
+            <circle cx="100" cy="100" r="75" stroke="#00F0FF" strokeWidth="2" strokeDasharray="6 4" fill="none" />
+            <ellipse cx="100" cy="108" rx="40" ry="42" fill="#00F0FF" fillOpacity="0.4" />
+            <ellipse cx="100" cy="110" rx="32" ry="32" fill="#FEF3C7" />
+            <rect x="74" y="105" width="52" height="14" rx="4" fill="#00F0FF" fillOpacity="0.8" />
+            <text x="100" y="116" textAnchor="middle" fontSize="10" fontWeight="900" fill="#090D16">CYBER</text>
+            <text x="100" y="180" textAnchor="middle" fontSize="12" fontWeight="900" fill="#00F0FF">⚡ CYBER FAIRY</text>
+          </svg>
+        </div>
+      );
+
+    case StyleTypeId.SECRET_PHARAOH:
+      return (
+        <div className={`relative rounded-3xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-amber-300 via-yellow-100 to-blue-900 shadow-xl border-2 border-amber-400 ${className}`}>
+          <svg viewBox="0 0 200 200" className="w-full h-full p-2" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="88" fill="#FEF9C3" fillOpacity="0.5" />
+            <path d="M60 50 L140 50 L160 140 L140 160 L60 160 L40 140 Z" fill="#1E3A8A" />
+            <rect x="65" y="60" width="70" height="8" fill="#FACC15" />
+            <rect x="65" y="80" width="70" height="8" fill="#FACC15" />
+            <ellipse cx="100" cy="110" rx="30" ry="32" fill="#FED7AA" />
+            <path d="M82 110 L94 110" stroke="#0F172A" strokeWidth="3" />
+            <path d="M106 110 L118 110" stroke="#0F172A" strokeWidth="3" />
+            <text x="100" y="182" textAnchor="middle" fontSize="12" fontWeight="900" fill="#B45309">👑 PHARAOH</text>
+          </svg>
+        </div>
+      );
+
+    case StyleTypeId.SECRET_COSMIC:
+      return (
+        <div className={`relative rounded-3xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-purple-900 via-indigo-950 to-pink-900 shadow-xl border-2 border-purple-400 ${className}`}>
+          <svg viewBox="0 0 200 200" className="w-full h-full p-2" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="200" height="200" fill="#0B0F19" />
+            <ellipse cx="100" cy="100" rx="75" ry="35" stroke="#D946EF" strokeWidth="2" transform="rotate(-25 100 100)" fill="none" />
+            <circle cx="100" cy="100" r="30" fill="#8B5CF6" />
+            <circle cx="88" cy="94" r="4" fill="#FFFFFF" />
+            <text x="100" y="180" textAnchor="middle" fontSize="12" fontWeight="900" fill="#E879F9">🌌 COSMIC GALAXY</text>
+          </svg>
+        </div>
+      );
+
+    default:
+      // Dynamic avatar for all other 100 styles!
+      const isSporty = typeId.startsWith('sporty_');
+      const isGirly = typeId.startsWith('girly_');
+      const isCool = typeId.startsWith('cool_');
+      const isNatural = typeId.startsWith('natural_');
+      const isTrendy = typeId.startsWith('trendy_');
+      const isClassic = typeId.startsWith('classic_');
+      const isSubcul = typeId.startsWith('subcul_');
+      const isAnimal = typeId.startsWith('animal_');
+      const isNature = typeId.startsWith('nature_');
+      const isFantasy = typeId.startsWith('fantasy_');
+
+      const bgGradient = isGirly || isTrendy
+        ? 'from-pink-100 via-rose-50 to-purple-100 border-pink-200'
+        : isCool || isSubcul
+        ? 'from-slate-100 via-sky-50 to-indigo-100 border-indigo-200'
+        : isNatural || isNature
+        ? 'from-emerald-50 via-teal-50 to-amber-50 border-emerald-200'
+        : isClassic
+        ? 'from-amber-50 via-stone-50 to-orange-50 border-amber-200'
+        : isAnimal
+        ? 'from-yellow-100 via-amber-50 to-orange-100 border-yellow-200'
+        : isFantasy
+        ? 'from-purple-100 via-fuchsia-50 to-cyan-100 border-purple-200'
+        : 'from-amber-100 via-yellow-100 to-sky-100 border-amber-200';
+
+      const hairColor = isGirly ? '#BE185D' : isCool ? '#1E293B' : isNatural ? '#78350F' : isFantasy ? '#7C3AED' : isAnimal ? '#B45309' : '#854D0E';
+
+      return (
+        <div className={`relative rounded-3xl overflow-hidden flex items-center justify-center bg-gradient-to-br ${bgGradient} shadow-inner border ${className}`}>
+          <svg viewBox="0 0 200 200" className="w-full h-full p-2" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="85" fill="#FFFFFF" fillOpacity="0.6" />
+            <ellipse cx="100" cy="108" rx="44" ry="46" fill={hairColor} />
+            <ellipse cx="100" cy="112" rx="34" ry="34" fill="#FED7AA" />
+            <circle cx="82" cy="120" r="6" fill="#F43F5E" fillOpacity="0.3" />
+            <circle cx="118" cy="120" r="6" fill="#F43F5E" fillOpacity="0.3" />
+            <ellipse cx="85" cy="112" rx="5" ry="6" fill="#1E293B" />
+            <circle cx="84" cy="110" r="2" fill="#FFFFFF" />
+            <ellipse cx="115" cy="112" rx="5" ry="6" fill="#1E293B" />
+            <circle cx="114" cy="110" r="2" fill="#FFFFFF" />
+            <path d="M93 124 Q100 133 107 124" fill="#E11D48" stroke="#1E293B" strokeWidth="2" strokeLinecap="round" />
+            <path d="M72 90 Q100 80 128 90 Q118 100 100 95 Q82 100 72 90 Z" fill={hairColor} />
+            <path d="M78 144 Q100 152 122 144 L140 185 Q100 195 60 185 Z" fill={isGirly ? '#F472B6' : isCool ? '#38BDF8' : isNatural ? '#34D399' : '#FBBF24'} />
+          </svg>
+        </div>
+      );
   }
 };
+

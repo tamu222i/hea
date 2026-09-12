@@ -34,8 +34,8 @@ export const Header: React.FC<HeaderProps> = ({ onReset, onOpenTypesList, isResu
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-pink-600 hover:bg-pink-50 rounded-xl transition-colors border border-slate-200/80"
           >
             <BookOpen className="w-4 h-4 text-pink-500" />
-            <span className="hidden sm:inline">全5タイプを見る</span>
-            <span className="sm:hidden">タイプ一覧</span>
+            <span className="hidden sm:inline">全105スタイル図鑑</span>
+            <span className="sm:hidden">図鑑(105種)</span>
           </button>
 
           {isResultView && (

@@ -44,9 +44,23 @@ export const ResultHeader: React.FC<ResultHeaderProps> = ({ profile }) => {
 
         {/* Profile Information */}
         <div className="flex-1 text-center md:text-left min-w-0">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 to-amber-100 text-pink-800 text-xs font-black tracking-wider uppercase mb-2">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            診断結果発表！
+          <div className="flex items-center justify-center md:justify-start gap-2 mb-2 flex-wrap">
+            {profile.isSecret ? (
+              <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-amber-950 text-xs font-black tracking-wider uppercase shadow-md animate-bounce">
+                <Sparkles className="w-3.5 h-3.5 fill-amber-900" />
+                🌟 伝説のシークレットスタイル覚醒！
+              </div>
+            ) : (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 to-amber-100 text-pink-800 text-xs font-black tracking-wider uppercase">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                診断結果発表！
+              </div>
+            )}
+            {profile.category && (
+              <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">
+                {profile.category}
+              </span>
+            )}
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-black text-slate-800 tracking-tight leading-snug">

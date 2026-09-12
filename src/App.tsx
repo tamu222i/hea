@@ -122,11 +122,11 @@ export default function App() {
                 すきな色や食べもの、今日の気分を選ぶだけで、
                 あなたの魅力を引き出すスタイルタイプがわかるよ！
                 <br className="hidden sm:inline" />
-                学校OKのヘアアレンジや通学＆おでかけコーデもたっぷり紹介♪
+                全100種類のスタイル＋めったに出ない<strong className="text-pink-600 font-black">伝説のシークレット5種</strong>も収録♪
               </p>
 
               {/* Feature Highlights */}
-              <div className="grid grid-cols-3 gap-2.5 mb-8 text-left">
+              <div className="grid grid-cols-3 gap-2.5 mb-6 text-left">
                 <div className="p-3 rounded-2xl bg-pink-50/70 border border-pink-100">
                   <div className="text-lg mb-0.5">🎀</div>
                   <div className="text-xs font-bold text-slate-800">ヘアアレンジ</div>
@@ -138,20 +138,30 @@ export default function App() {
                   <div className="text-[10px] text-slate-500">ラッキーカラー</div>
                 </div>
                 <div className="p-3 rounded-2xl bg-purple-50/70 border border-purple-100">
-                  <div className="text-lg mb-0.5">👗</div>
-                  <div className="text-xs font-bold text-slate-800">通学＆休日服</div>
-                  <div className="text-[10px] text-slate-500">かわいいコーデ</div>
+                  <div className="text-lg mb-0.5">✨</div>
+                  <div className="text-xs font-bold text-slate-800">105スタイル</div>
+                  <div className="text-[10px] text-slate-500">シークレット5種</div>
                 </div>
               </div>
 
-              <button
-                id="start-diagnosis-btn"
-                onClick={() => setIsStarted(true)}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-amber-400 hover:from-pink-600 hover:to-amber-500 text-white font-black text-base shadow-lg shadow-pink-200 flex items-center justify-center gap-2 group transition-all cursor-pointer"
-              >
-                <span>診断をスタートする（約1分）</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
+              <div className="space-y-2.5">
+                <button
+                  id="start-diagnosis-btn"
+                  onClick={() => setIsStarted(true)}
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-amber-400 hover:from-pink-600 hover:to-amber-500 text-white font-black text-base shadow-lg shadow-pink-200 flex items-center justify-center gap-2 group transition-all cursor-pointer"
+                >
+                  <span>診断をスタートする（約1分）</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+
+                <button
+                  id="browse-all-styles-start-btn"
+                  onClick={() => setIsAllTypesModalOpen(true)}
+                  className="w-full py-2.5 rounded-xl bg-slate-50 hover:bg-pink-50 border border-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <span>📖 全105種類のスタイル図鑑を自由に見る</span>
+                </button>
+              </div>
             </motion.div>
           )}
 
