@@ -45,4 +45,8 @@
   - 手動デプロイ用の `gh-pages` パッケージ導入および `npm run deploy`, `npm run build:pages` スクリプトの追加
   - サーバーレス静的環境（GitHub Pages）でもアドバイス機能が正常稼働する `StylistAdviceService` フォールバックエンジンを実装（BDDテスト追加・全11テスト通過）
   - デプロイ手順を記載した `README.md` を作成
+- `fix`:
+  - GitHub Actionsの `cache: 'npm'` および `npm ci` で必須となる `package-lock.json` を生成・コミットし、「Dependencies lock file is not found」エラーを解消
+  - `.github/workflows/deploy.yml` のインストールステップにフォールバック処理を追加
+
 
