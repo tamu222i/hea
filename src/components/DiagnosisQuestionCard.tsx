@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { DiagnosisQuestion, QuestionOption } from '../infrastructure/repositories/QuestionRepository';
+import { PoolQuestion, QuestionOption } from '../domain/models/QuestionPool';
 import { ArrowLeft, CheckCircle2 } from 'lucide-react';
 
 interface DiagnosisQuestionCardProps {
-  question: DiagnosisQuestion;
+  question: PoolQuestion | { id: string; questionText: string; description: string; options: QuestionOption[] };
   currentStep: number;
   totalSteps: number;
   selectedOptionId?: string;

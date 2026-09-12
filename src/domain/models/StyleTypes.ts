@@ -60,6 +60,13 @@ export interface FashionCoord {
   imageUrl?: string;
 }
 
+export interface NearMissInfo {
+  secretId: StyleTypeId;
+  secretName: string;
+  message: string;
+  hint: string;
+}
+
 export interface StyleProfile {
   typeId: StyleTypeId;
   typeName: string;
@@ -70,6 +77,7 @@ export interface StyleProfile {
   isSecret?: boolean;
   secretHint?: string;
   rarity?: 'Normal' | 'Rare' | 'Secret';
+  nearMiss?: NearMissInfo;
   personalityTraits: string[];
   recommendedColors: ColorPaletteItem[];
   hairStyles: HairStyle[];

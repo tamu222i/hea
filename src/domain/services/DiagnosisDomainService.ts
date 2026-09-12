@@ -1,14 +1,26 @@
-import { StyleProfile, StyleTypeId } from '../models/StyleTypes';
+import { StyleProfile, StyleTypeId, NearMissInfo } from '../models/StyleTypes';
 import { UserAnswers } from '../schemas/diagnosisSchema';
 import { IStyleRepository } from '../repositories/IStyleRepository';
 import { PresetStyleRepository } from '../../infrastructure/repositories/PresetStyleRepository';
+
+export interface DynamicSelectedOption {
+  questionId: string;
+  optionId: string;
+  categoryWeights?: Partial<Record<string, number>>;
+  secretTag?: 'unicorn' | 'magical' | 'cyber' | 'pharaoh' | 'cosmic';
+  hairLength?: 'short' | 'medium' | 'long';
+}
+
+export interface DynamicUserAnswers {
+  selectedOptions: DynamicSelectedOption[];
+}
 
 export class DiagnosisDomainService {
   constructor(private readonly styleRepo: IStyleRepository = new PresetStyleRepository()) {}
 
   /**
    * ユーザーの回答に基づいてスコアを集計し、最適なスタイルプロファイルを判定する
-   * （シークレットスタイルの発動条件も判定）
+   * （シークレットスタイルの発動条件 & おしいｗニアミス判定も実施）
    */
   public diagnose(answers: UserAnswers): StyleProfile {
     // 1. シークレットスタイルの特殊条件チェック
@@ -16,10 +28,152 @@ export class DiagnosisDomainService {
     const selectedTypeId = secretTypeId || this.determineType(answers);
     const baseProfile = this.styleRepo.getById(selectedTypeId);
 
+    // 2. シークレットでない場合、ニアミス（おしいｗ）チェック
+    let nearMiss: NearMissInfo | undefined = undefined;
+    if (!secretTypeId) {
+      nearMiss = this.checkNearMiss(answers);
+    }
+
     return {
       ...baseProfile,
+      nearMiss,
       hairStyles: this.prioritizeHairStyles(baseProfile.hairStyles, answers.hairLength),
     };
+  }
+
+  /**
+   * 100問プールから選ばれた動的5問の回答からスタイルプロファイルを判定する
+   */
+  public diagnoseDynamic(answers: DynamicUserAnswers): StyleProfile {
+    // 1. 髪の長さ特定
+    let detectedHairLength: 'short' | 'medium' | 'long' = 'medium';
+    for (const opt of answers.selectedOptions) {
+      if (opt.hairLength) {
+        detectedHairLength = opt.hairLength;
+        break;
+      }
+    }
+
+    // 2. シークレットタグの集計
+    const secretCounts: Record<string, number> = {
+      unicorn: 0,
+      magical: 0,
+      cyber: 0,
+      pharaoh: 0,
+      cosmic: 0,
+    };
+
+    for (const opt of answers.selectedOptions) {
+      if (opt.secretTag) {
+        secretCounts[opt.secretTag] = (secretCounts[opt.secretTag] || 0) + 1;
+      }
+    }
+
+    // シークレット完全開放判定（3つ以上のタグが一致）
+    let secretTypeId: StyleTypeId | null = null;
+    if (secretCounts.unicorn >= 3) secretTypeId = StyleTypeId.SECRET_UNICORN;
+    else if (secretCounts.magical >= 3) secretTypeId = StyleTypeId.SECRET_MAGICAL;
+    else if (secretCounts.cyber >= 3) secretTypeId = StyleTypeId.SECRET_CYBER;
+    else if (secretCounts.pharaoh >= 3) secretTypeId = StyleTypeId.SECRET_PHARAOH;
+    else if (secretCounts.cosmic >= 3) secretTypeId = StyleTypeId.SECRET_COSMIC;
+
+    // 3. ニアミス判定（2個一致でおしいｗ）
+    let nearMiss: NearMissInfo | undefined = undefined;
+    if (!secretTypeId) {
+      if (secretCounts.unicorn === 2) {
+        nearMiss = {
+          secretId: StyleTypeId.SECRET_UNICORN,
+          secretName: 'レインボーユニコーンエンジェル',
+          message: 'おしいｗ あと少しで奇跡の『レインボーユニコーンエンジェル』が目覚めそうだったよ！🦄',
+          hint: '虹色カラーやあま〜いスイーツ、夢見心地な気分を重ねてみて！',
+        };
+      } else if (secretCounts.magical === 2) {
+        nearMiss = {
+          secretId: StyleTypeId.SECRET_MAGICAL,
+          secretName: 'ミラクル☆マジカルガール',
+          message: 'おしいｗ あと少しで『ミラクル☆マジカルガール』に変身できそうだったよ！🪄',
+          hint: 'ピンクやリボン、ダンスやキラキラなテンションを選ぶと変身の扉が開くかも！？',
+        };
+      } else if (secretCounts.cyber === 2) {
+        nearMiss = {
+          secretId: StyleTypeId.SECRET_CYBER,
+          secretName: '電脳サイバーフェアリー',
+          message: 'おしいｗ あと少しで未来の『電脳サイバーフェアリー』と同期できそうだったよ！⚡',
+          hint: 'シルバーやネオンカラー、ゲームや未来的なテクノロジーに注目してみて！',
+        };
+      } else if (secretCounts.pharaoh === 2) {
+        nearMiss = {
+          secretId: StyleTypeId.SECRET_PHARAOH,
+          secretName: 'ファラオエンプレス女王',
+          message: 'おしいｗ あと少しで高貴な『ファラオエンプレス女王』の王冠が授けられそうだったよ！👑',
+          hint: 'ゴールドや古代の歴史、優雅で落ち着いた知的な選択肢を選んでみて！',
+        };
+      } else if (secretCounts.cosmic === 2) {
+        nearMiss = {
+          secretId: StyleTypeId.SECRET_COSMIC,
+          secretName: 'コズミックギャラクシー',
+          message: 'おしいｗ あと少しで神秘の『コズミックギャラクシー』の扉が開きそうだったよ！🌌',
+          hint: '星空やパープル、宇宙や夜空の神秘的なアイテムを選んでみて！',
+        };
+      }
+    }
+
+    // 4. カテゴリスコア集計
+    const categoryScores: Record<string, number> = {};
+    for (const opt of answers.selectedOptions) {
+      if (opt.categoryWeights) {
+        for (const [cat, weight] of Object.entries(opt.categoryWeights)) {
+          const normalizedCat = this.normalizeCategory(cat);
+          categoryScores[normalizedCat] = (categoryScores[normalizedCat] || 0) + (weight || 0);
+        }
+      }
+    }
+
+    // 最高スコアカテゴリーの判定
+    let dominantCategory = 'スポーティ＆アクティブ';
+    let highestCatScore = -1;
+    for (const [cat, score] of Object.entries(categoryScores)) {
+      if (score > highestCatScore) {
+        highestCatScore = score;
+        dominantCategory = cat;
+      }
+    }
+
+    // 5. 該当カテゴリー内のスタイルを取得
+    let selectedStyle: StyleProfile;
+    if (secretTypeId) {
+      selectedStyle = this.styleRepo.getById(secretTypeId);
+    } else {
+      const allStyles = Object.values(this.styleRepo.getAll());
+      const categoryStyles = allStyles.filter((s) => s.category === dominantCategory);
+      if (categoryStyles.length > 0) {
+        // 回答のバリエーションやランダム要素でカテゴリー内スタイルを選出
+        const index = Math.abs(answers.selectedOptions.reduce((acc, o) => acc + o.optionId.length, 0)) % categoryStyles.length;
+        selectedStyle = categoryStyles[index];
+      } else {
+        selectedStyle = this.styleRepo.getById(StyleTypeId.POP_SPORTY);
+      }
+    }
+
+    return {
+      ...selectedStyle,
+      nearMiss,
+      hairStyles: this.prioritizeHairStyles(selectedStyle.hairStyles, detectedHairLength),
+    };
+  }
+
+  private normalizeCategory(cat: string): string {
+    if (cat.includes('ガーリー') || cat.includes('スウィート')) return 'ガーリー＆ロマンティック';
+    if (cat.includes('スポーティ') || cat.includes('アクティブ')) return 'スポーティ＆アクティブ';
+    if (cat.includes('クール') || cat.includes('ストリート')) return 'クール＆モードストリート';
+    if (cat.includes('ナチュラル') || cat.includes('ピュア')) return 'ナチュラル＆ピュアカフェ';
+    if (cat.includes('トレンド') || cat.includes('アイドル')) return 'トレンド＆韓国アイドル';
+    if (cat.includes('サブカル') || cat.includes('Y2K')) return 'サブカル＆Y2Kネオポップ';
+    if (cat.includes('クラシック') || cat.includes('レトロ')) return 'クラシック＆レトロヴィンテージ';
+    if (cat.includes('アニマル') || cat.includes('マスコット')) return 'アニマル＆ゆるかわマスコット';
+    if (cat.includes('シーズン') || cat.includes('ネイチャー')) return 'シーズン＆ネイチャー';
+    if (cat.includes('ファンタジー') || cat.includes('ドリーム')) return 'ファンタジー＆ドリーム';
+    return cat;
   }
 
   /**
@@ -73,6 +227,82 @@ export class DiagnosisDomainService {
     }
 
     return null;
+  }
+
+  /**
+   * 静的回答形式におけるニアミス判定（惜しいｗ）
+   */
+  public checkNearMiss(answers: UserAnswers): NearMissInfo | undefined {
+    // 1. ユニコーンニアミスチェック
+    const isRainbow = answers.favoriteColor === 'rainbow';
+    const isSweet = ['sweets_parfait', 'crepe', 'pancake', 'cake'].includes(answers.favoriteFood);
+    const isDreamy = answers.currentMood === 'dreamy';
+    const unicornMatches = [isRainbow, isSweet, isDreamy].filter(Boolean).length;
+    if (unicornMatches >= 2) {
+      return {
+        secretId: StyleTypeId.SECRET_UNICORN,
+        secretName: 'レインボーユニコーンエンジェル',
+        message: 'おしいｗ あと少しで伝説の『レインボーユニコーンエンジェル』が目覚めそうだったよ！🦄',
+        hint: '虹色カラーやスイーツ、夢見る気分を重ねると奇跡が起きるかも…！？',
+      };
+    }
+
+    // 2. マジカルガールニアミスチェック
+    const isPink = answers.favoriteColor === 'pink';
+    const isDance = answers.weekendActivity === 'dance_tiktok';
+    const isSparkle = answers.currentMood === 'sparkle_excited';
+    const magicalMatches = [isPink, isSweet, isDance, isSparkle].filter(Boolean).length;
+    if (magicalMatches >= 2) {
+      return {
+        secretId: StyleTypeId.SECRET_MAGICAL,
+        secretName: 'ミラクル☆マジカルガール',
+        message: 'おしいｗ あと少しで奇跡の『ミラクル☆マジカルガール』に変身できそうだったよ！🪄',
+        hint: 'ピンク・スイーツ・ダンス・キラキラ気分の4拍子が揃ったとき奇跡の変身が起こるよ！',
+      };
+    }
+
+    // 3. サイバーニアミスチェック
+    const isSilver = answers.favoriteColor === 'silver';
+    const isGame = answers.weekendActivity === 'game_youtube';
+    const isCool = answers.currentMood === 'cool_calm';
+    const cyberMatches = [isSilver, isGame, isCool].filter(Boolean).length;
+    if (cyberMatches >= 2) {
+      return {
+        secretId: StyleTypeId.SECRET_CYBER,
+        secretName: '電脳サイバーフェアリー',
+        message: 'おしいｗ あと少しで未来の『電脳サイバーフェアリー』と同期できそうだったよ！⚡',
+        hint: 'シルバーカラーとゲームとクールな心を研ぎ澄ませてみて！',
+      };
+    }
+
+    // 4. ファラオ女王ニアミスチェック
+    const isBeige = answers.favoriteColor === 'beige';
+    const isLib = answers.weekendActivity === 'library_museum';
+    const isRelax = answers.currentMood === 'relax_gentle';
+    const pharaohMatches = [isBeige, isLib, isRelax].filter(Boolean).length;
+    if (pharaohMatches >= 2) {
+      return {
+        secretId: StyleTypeId.SECRET_PHARAOH,
+        secretName: 'ファラオエンプレス女王',
+        message: 'おしいｗ あと少しで高貴な『ファラオエンプレス女王』の王冠が授けられそうだったよ！👑',
+        hint: 'ベージュやゴールド、知的な読書、優雅に落ち着いた気分を揃えてみて！',
+      };
+    }
+
+    // 5. コズミックニアミスチェック
+    const isPurple = answers.favoriteColor === 'purple';
+    const isNature = answers.weekendActivity === 'nature_walk';
+    const cosmicMatches = [isPurple, isNature, isDreamy].filter(Boolean).length;
+    if (cosmicMatches >= 2) {
+      return {
+        secretId: StyleTypeId.SECRET_COSMIC,
+        secretName: 'コズミックギャラクシー',
+        message: 'おしいｗ あと少しで神秘の『コズミックギャラクシー』の扉が開きそうだったよ！🌌',
+        hint: 'パープルカラーと自然、夢見る気分の調和を感じてみて！',
+      };
+    }
+
+    return undefined;
   }
 
   private determineType(answers: UserAnswers): StyleTypeId {
@@ -186,16 +416,9 @@ export class DiagnosisDomainService {
       [StyleTypeId.TRENDY_IDOL]: 0,
     };
 
-    // 1. 好きな色によるスコア配分
     this.addScore(scores, this.getColorWeights(answers.favoriteColor));
-
-    // 2. 好きな食べ物によるスコア配分
     this.addScore(scores, this.getFoodWeights(answers.favoriteFood));
-
-    // 3. 休日の過ごし方によるスコア配分
     this.addScore(scores, this.getActivityWeights(answers.weekendActivity));
-
-    // 4. 気分によるスコア配分
     this.addScore(scores, this.getMoodWeights(answers.currentMood));
 
     return scores;

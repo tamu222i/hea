@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Header } from './components/Header';
 import { DiagnosisQuestionCard } from './components/DiagnosisQuestionCard';
 import { ResultHeader } from './components/ResultHeader';
@@ -12,48 +12,115 @@ import { HairArrangementCard } from './components/HairArrangementCard';
 import { FashionCoordCard } from './components/FashionCoordCard';
 import { AiStylistConsultant } from './components/AiStylistConsultant';
 import { AllTypesModal } from './components/AllTypesModal';
-import { DIAGNOSIS_QUESTIONS } from './infrastructure/repositories/QuestionRepository';
-import { DiagnosisDomainService } from './domain/services/DiagnosisDomainService';
-import { UserAnswers, UserAnswersSchema } from './domain/schemas/diagnosisSchema';
+import { NearMissAlert } from './components/NearMissAlert';
+import { selectFiveQuestions, PoolQuestion, QuestionOption } from './domain/models/QuestionPool';
+import { DiagnosisDomainService, DynamicSelectedOption } from './domain/services/DiagnosisDomainService';
+import { UserAnswers } from './domain/schemas/diagnosisSchema';
 import { StyleProfile, StyleTypeId } from './domain/models/StyleTypes';
 import { PRESET_STYLES } from './infrastructure/repositories/presetStyles';
-import { Sparkles, ArrowRight, Heart, Star } from 'lucide-react';
+import { Sparkles, ArrowRight, Heart, Star, Dices } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+const STORAGE_UNLOCKED_KEY = 'kids_style_unlocked_secrets_v1';
+const STORAGE_NEARMISS_KEY = 'kids_style_nearmiss_secrets_v1';
+
 export default function App() {
+  const [questions, setQuestions] = useState<PoolQuestion[]>(() => selectFiveQuestions());
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
   const [isStarted, setIsStarted] = useState<boolean>(false);
+  const [selectedPoolOptions, setSelectedPoolOptions] = useState<DynamicSelectedOption[]>([]);
   const [answers, setAnswers] = useState<Partial<UserAnswers>>({});
   const [resultProfile, setResultProfile] = useState<StyleProfile | null>(null);
   const [isAllTypesModalOpen, setIsAllTypesModalOpen] = useState<boolean>(false);
 
-  const diagnosisService = React.useMemo(() => new DiagnosisDomainService(), []);
+  // Unlocked secret styles & near-miss history
+  const [unlockedSecretIds, setUnlockedSecretIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_UNLOCKED_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [nearMissSecrets, setNearMissSecrets] = useState<Record<string, { message: string; hint: string }>>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_NEARMISS_KEY);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // Save to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_UNLOCKED_KEY, JSON.stringify(unlockedSecretIds));
+    } catch {
+      // ignore
+    }
+  }, [unlockedSecretIds]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_NEARMISS_KEY, JSON.stringify(nearMissSecrets));
+    } catch {
+      // ignore
+    }
+  }, [nearMissSecrets]);
+
+  const diagnosisService = useMemo(() => new DiagnosisDomainService(), []);
 
   // Current Question
-  const currentQuestion = DIAGNOSIS_QUESTIONS[currentStepIndex];
+  const currentQuestion = questions[currentStepIndex];
 
   // Handle Option Select
   const handleSelectOption = (optionId: string) => {
     if (!currentQuestion) return;
 
-    const newAnswers = {
-      ...answers,
-      [currentQuestion.id]: optionId,
-    };
-    setAnswers(newAnswers);
+    const opt = currentQuestion.options.find((o) => o.id === optionId);
+    if (!opt) return;
 
-    // If there is next question, go forward
-    if (currentStepIndex < DIAGNOSIS_QUESTIONS.length - 1) {
+    const dynamicOpt: DynamicSelectedOption = {
+      questionId: currentQuestion.id,
+      optionId: opt.id,
+      categoryWeights: opt.categoryWeights,
+      secretTag: opt.secretTag,
+      hairLength: opt.hairLength,
+    };
+
+    const newSelected = [...selectedPoolOptions.filter((s) => s.questionId !== currentQuestion.id), dynamicOpt];
+    setSelectedPoolOptions(newSelected);
+
+    // Save hair length if option provides one
+    if (opt.hairLength) {
+      setAnswers((prev) => ({ ...prev, hairLength: opt.hairLength }));
+    }
+
+    // Advance or diagnose
+    if (currentStepIndex < questions.length - 1) {
       setCurrentStepIndex((prev) => prev + 1);
     } else {
-      // Completed all questions! Run Diagnosis
-      try {
-        const validated = UserAnswersSchema.parse(newAnswers);
-        const result = diagnosisService.diagnose(validated);
-        setResultProfile(result);
-      } catch (err) {
-        console.error('Validation error:', err);
+      // Completed all 5 questions! Diagnose using dynamic answers
+      const result = diagnosisService.diagnoseDynamic({ selectedOptions: newSelected });
+
+      // Unlock secret if diagnosed
+      if (result.isSecret) {
+        setUnlockedSecretIds((prev) => (prev.includes(result.typeId) ? prev : [...prev, result.typeId]));
       }
+
+      // Record near-miss if close
+      if (result.nearMiss) {
+        setNearMissSecrets((prev) => ({
+          ...prev,
+          [result.nearMiss!.secretTypeId]: {
+            message: result.nearMiss!.message,
+            hint: result.nearMiss!.hint,
+          },
+        }));
+      }
+
+      setResultProfile(result);
     }
   };
 
@@ -66,10 +133,12 @@ export default function App() {
     }
   };
 
-  // Reset Diagnosis
+  // Reset Diagnosis with a FRESH pool of 5 questions!
   const handleReset = () => {
+    setQuestions(selectFiveQuestions());
     setIsStarted(false);
     setCurrentStepIndex(0);
+    setSelectedPoolOptions([]);
     setAnswers({});
     setResultProfile(null);
   };
@@ -77,6 +146,9 @@ export default function App() {
   // Direct Type Selection from Modal
   const handleSelectTypeFromModal = (typeId: StyleTypeId) => {
     const profile = PRESET_STYLES[typeId];
+    if (profile.isSecret) {
+      setUnlockedSecretIds((prev) => (prev.includes(typeId) ? prev : [...prev, typeId]));
+    }
     setResultProfile(profile);
     setIsStarted(true);
   };
@@ -122,7 +194,8 @@ export default function App() {
                 すきな色や食べもの、今日の気分を選ぶだけで、
                 あなたの魅力を引き出すスタイルタイプがわかるよ！
                 <br className="hidden sm:inline" />
-                全100種類のスタイル＋めったに出ない<strong className="text-pink-600 font-black">伝説のシークレット5種</strong>も収録♪
+                全100問の質問から<strong className="text-pink-600 font-black">毎回ちがう5問</strong>をランダム出題♪
+                めったに出ない<strong className="text-amber-600 font-black">伝説のシークレット5種</strong>も見つけてね！
               </p>
 
               {/* Feature Highlights */}
@@ -150,7 +223,8 @@ export default function App() {
                   onClick={() => setIsStarted(true)}
                   className="w-full py-4 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-amber-400 hover:from-pink-600 hover:to-amber-500 text-white font-black text-base shadow-lg shadow-pink-200 flex items-center justify-center gap-2 group transition-all cursor-pointer"
                 >
-                  <span>診断をスタートする（約1分）</span>
+                  <Dices className="w-5 h-5 animate-pulse" />
+                  <span>5問クイズをはじめる！（100問から選出）</span>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
 
@@ -170,8 +244,8 @@ export default function App() {
             <DiagnosisQuestionCard
               question={currentQuestion}
               currentStep={currentStepIndex + 1}
-              totalSteps={DIAGNOSIS_QUESTIONS.length}
-              selectedOptionId={answers[currentQuestion.id]}
+              totalSteps={questions.length}
+              selectedOptionId={selectedPoolOptions.find((o) => o.questionId === currentQuestion.id)?.optionId}
               onSelectOption={handleSelectOption}
               onPrevStep={handlePrevStep}
             />
@@ -186,6 +260,11 @@ export default function App() {
               transition={{ duration: 0.3 }}
               className="w-full space-y-6"
             >
+              {/* Secret Near Miss Alert (おしいｗ notification) */}
+              {resultProfile.nearMiss && (
+                <NearMissAlert nearMiss={resultProfile.nearMiss} />
+              )}
+
               {/* Result Header & Illustration */}
               <ResultHeader profile={resultProfile} />
 
@@ -217,7 +296,7 @@ export default function App() {
                   onClick={handleReset}
                   className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white hover:bg-pink-50 text-pink-600 font-bold text-sm border-2 border-pink-200 shadow-sm transition-colors cursor-pointer"
                 >
-                  もう一度ちがう答えで診断する
+                  もう一度ちがう5問で診断する
                 </button>
                 <button
                   id="bottom-all-types-btn"
@@ -240,6 +319,8 @@ export default function App() {
         allStyles={PRESET_STYLES}
         currentTypeId={resultProfile?.typeId}
         onSelectType={handleSelectTypeFromModal}
+        unlockedSecretIds={unlockedSecretIds}
+        nearMissSecrets={nearMissSecrets}
       />
 
       <footer className="w-full py-4 text-center text-xs text-slate-400 border-t border-pink-100 bg-white/50">

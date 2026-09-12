@@ -2,6 +2,14 @@
 
 すべての重要な変更、設計決定、TDDのRed/Green/Refactorサイクルをここに記録します。
 
+### Fix: 図鑑クリック時に画面が真っ白になる不具合の修正 (React Rules of Hooks違反の解消 & BDD検証)
+- `fix`:
+  - `AllTypesModal.tsx` において、`if (!isOpen) return null;` より後ろで `useMemo`（カテゴリー抽出・フィルタリング）を呼び出していたため、モーダルを開閉する際にReactのHooks呼び出し順序が変化し `Rendered more hooks than during the previous render` エラーが発生して画面全体がクラッシュ（真っ白）していた不具合を解消。すべてのHooksをコンポーネントトップレベルで無条件に呼び出す構造に修正。
+  - モーダル外枠や各カード要素に一意のID属性（`#all-types-modal-backdrop`, `#all-types-modal-dialog`, `#style-card-${typeId}`）を付与。
+- `test`:
+  - `jsdom` 環境でのインタラクティブ実機模倣テストスイート `InteractiveBookModal.spec.tsx` を新規作成。
+  - ヘッダー図鑑ボタンクリック、スタート画面図鑑ボタンクリック、モーダル内の任意スタイルカード選択による診断結果画面遷移、結果画面下部からの再オープン、シークレットスタイル選択時の覚醒ヘッダー表示、カテゴリーフィルター＆検索の全シナリオを網羅テスト（全129件テスト全通過）。
+
 ### Feature: 100種類の新スタイル＋5種類のシークレットスタイルの拡充 (Green & Tested)
 - `feat`:
   - スタイルタイプ数を全105種類（100通常スタイル＋5伝説シークレットスタイル）に大幅拡充

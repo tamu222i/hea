@@ -1,0 +1,176 @@
+import { PoolQuestion } from './types';
+
+export const HAIR_QUESTIONS: PoolQuestion[] = [
+  {
+    id: 'h1',
+    genre: 'hair',
+    questionText: '今の髪の長さはどれくらい？（ヘアアレンジ用）',
+    description: 'あなたの髪の長さにぴったりの可愛いアレンジを提案するよ！',
+    options: [
+      { id: 'h1_short', label: 'ショート・ボブ（あご〜肩上）', subtitle: '軽やかでアクティブ！外ハネも得意', emoji: '✂️', hairLength: 'short', categoryWeights: { 'スポーティ＆アクティブ': 2, 'クール＆ストリート': 1 } },
+      { id: 'h1_medium', label: 'ミディアム（肩〜鎖骨くらい）', subtitle: 'アレンジ自在！結びやすい王道長さ', emoji: '💁‍♀️', hairLength: 'medium', categoryWeights: { 'スウィート＆ガーリー': 1, 'ナチュラル＆ピュア': 1 } },
+      { id: 'h1_long', label: 'ロング（鎖骨より長い）', subtitle: '三つ編みやおだんごも自由自在！', emoji: '👧', hairLength: 'long', categoryWeights: { 'トレンド＆アイドル': 1, 'ファンタジー＆ドリーム': 1 } },
+    ],
+  },
+  {
+    id: 'h2',
+    genre: 'hair',
+    questionText: '髪を結ぶときの定番スタイルや髪の長さは？',
+    description: '朝のスタイリングでよくやる長さや結び方は？',
+    options: [
+      { id: 'h2_short', label: '結ばないショート・ピン留めアレンジ', subtitle: '耳かけやサイドピンですっきり！', emoji: '✨', hairLength: 'short', categoryWeights: { 'クール＆ストリート': 2 } },
+      { id: 'h2_medium', label: '肩につく長さでポニーテールやくるりんぱ', subtitle: '普段の通学にぴったり！', emoji: '🎀', hairLength: 'medium', categoryWeights: { 'スウィート＆ガーリー': 2 } },
+      { id: 'h2_long', label: '胸元までのロングでツインテールやおだんご', subtitle: 'ふんわり結んで存在感ばつぐん！', emoji: '💖', hairLength: 'long', categoryWeights: { 'トレンド＆アイドル': 2 } },
+    ],
+  },
+  {
+    id: 'h3',
+    genre: 'hair',
+    questionText: '体育の日の髪のまとめ方はどうしてる？',
+    description: '跳んだり走ったりしても邪魔にならないスタイル！',
+    options: [
+      { id: 'h3_short', label: '結ばずにカチューシャやアメピンで前髪キープ（ショート丈）', emoji: '🏃‍♀️', hairLength: 'short', categoryWeights: { 'スポーティ＆アクティブ': 3 } },
+      { id: 'h3_medium', label: '高めポニーテールやたまねぎヘア（ミディアム丈）', emoji: '⚡', hairLength: 'medium', categoryWeights: { 'スポーティ＆アクティブ': 3 } },
+      { id: 'h3_long', label: 'しっかり編み込み三つ編みやおだんご（ロング丈）', emoji: '🏐', hairLength: 'long', categoryWeights: { 'クラシック＆レトロ': 2, 'スポーティ＆アクティブ': 1 } },
+    ],
+  },
+  {
+    id: 'h4',
+    genre: 'hair',
+    questionText: '使ってみたいヘアゴムやアクセは？',
+    description: '髪を結ぶときのアクセント！',
+    options: [
+      { id: 'h4_neon', label: 'ネオンカラーのシリコンゴムやスポーティバンド', emoji: '💛', categoryWeights: { 'スポーティ＆アクティブ': 3 } },
+      { id: 'h4_ribbon', label: 'サテンリボンやオーガンジーのふわふわシュシュ', emoji: '🎀', categoryWeights: { 'スウィート＆ガーリー': 3 }, secretTag: 'magical' },
+      { id: 'h4_pearl', label: '大人っぽいパールのヘアゴムやメタルバレッタ', emoji: '🦪', categoryWeights: { 'クラシック＆レトロ': 3 } },
+      { id: 'h4_clip', label: 'カラフルなミニクリップやY2K風パッチンピン', emoji: '⭐', categoryWeights: { 'サブカル＆Y2K': 3 }, secretTag: 'cyber' },
+    ],
+  },
+  {
+    id: 'h5',
+    genre: 'hair',
+    questionText: '前髪（バングス）のスタイルはどれが好き？',
+    description: 'お顔の印象を決める大事なポイント！',
+    options: [
+      { id: 'h5_straight', label: 'ぱっつんストレートバングで目力アップ！', emoji: '👁️', categoryWeights: { 'トレンド＆アイドル': 2, 'クラシック＆レトロ': 1 } },
+      { id: 'h5_see_through', label: '抜け感のあるシースルーバング・すき間前髪', emoji: '✨', categoryWeights: { 'トレンド＆アイドル': 3 } },
+      { id: 'h5_center', label: 'おでこを出したセンター分け・かきあげ風', emoji: '☀️', categoryWeights: { 'クール＆ストリート': 2, 'スポーティ＆アクティブ': 1 } },
+      { id: 'h5_pin', label: '前髪をねじってピンで留めるキュートアレンジ', emoji: '📎', categoryWeights: { 'スウィート＆ガーリー': 3 } },
+    ],
+  },
+  {
+    id: 'h6',
+    genre: 'hair',
+    questionText: '学校のない休日に挑戦したいヘアアレンジは？',
+    description: '時間がある休日にやってみたい特別アレンジ！',
+    options: [
+      { id: 'h6_curling', label: 'コテやカーラーで毛先をふわっと巻くウェーブ', emoji: '〰️', categoryWeights: { 'スウィート＆ガーリー': 2, 'トレンド＆アイドル': 2 }, secretTag: 'unicorn' },
+      { id: 'h6_braids', label: '2つの高めおだんご（くま耳・ツインバンズ）', emoji: '🐻', categoryWeights: { 'アニマル＆マスコット': 3 } },
+      { id: 'h6_color_ext', label: 'ワンタッチでつけられるカラーエクステ', emoji: '🌈', categoryWeights: { 'サブカル＆Y2K': 3 }, secretTag: 'cyber' },
+      { id: 'h6_cap_hair', label: 'キャップから後ろ髪を出すスポーティまとめ髪', emoji: '🧢', categoryWeights: { 'スポーティ＆アクティブ': 3 } },
+    ],
+  },
+  {
+    id: 'h7',
+    genre: 'hair',
+    questionText: 'ヘアブラシや櫛（くし）を選ぶなら？',
+    description: '毎日のブラッシングが楽しくなるお気に入り！',
+    options: [
+      { id: 'h7_compact', label: '折りたたみミラー付きのスポーティなコーム', emoji: '🪞', categoryWeights: { 'スポーティ＆アクティブ': 2 } },
+      { id: 'h7_wood', label: '静電気を防ぐ天然木のパドルブラシ', emoji: '🪵', categoryWeights: { 'ナチュラル＆ピュア': 3 } },
+      { id: 'h7_heart', label: 'キラキラハートやラメ入りのプリンセスブラシ', emoji: '💖', categoryWeights: { 'スウィート＆ガーリー': 3 }, secretTag: 'magical' },
+      { id: 'h7_fine', label: '分け目がきれいに作れるプロ仕様のテールコーム', emoji: '💈', categoryWeights: { 'トレンド＆アイドル': 2 } },
+    ],
+  },
+  {
+    id: 'h8',
+    genre: 'hair',
+    questionText: 'シャンプーの香りで一番すきなのは？',
+    description: '髪が揺れるたびにふんわり香るいい匂い！',
+    options: [
+      { id: 'h8_citrus', label: '爽やかなレモンやグレープフルーツの柑橘系', emoji: '🍋', categoryWeights: { 'スポーティ＆アクティブ': 3 } },
+      { id: 'h8_floral', label: '甘くて優しいフローラルローズやピオニー', emoji: '🌹', categoryWeights: { 'スウィート＆ガーリー': 3 } },
+      { id: 'h8_soap', label: '清潔感あふれるホワイトソープ・しゃぼん玉', emoji: '🧼', categoryWeights: { 'ナチュラル＆ピュア': 3 } },
+      { id: 'h8_sweet', label: 'バニラやピーチのみずみずしい甘い香り', emoji: '🍑', categoryWeights: { 'トレンド＆アイドル': 2 }, secretTag: 'unicorn' },
+    ],
+  },
+  {
+    id: 'h9',
+    genre: 'hair',
+    questionText: '三つ編みをするなら、どんな編み方が好き？',
+    description: '定番だけど奥が深い三つ編み！',
+    options: [
+      { id: 'h9_loose', label: '少しほぐしてふんわり抜け感を出した三つ編み', emoji: '✨', categoryWeights: { 'ナチュラル＆ピュア': 2, 'スウィート＆ガーリー': 2 } },
+      { id: 'h9_tight', label: 'きっちり編んだクラシカルでお嬢様風の三つ編み', emoji: '👧', categoryWeights: { 'クラシック＆レトロ': 3 } },
+      { id: 'h9_boxer', label: '根元から編み込むかっこいいボクサーブレイズ', emoji: '🥊', categoryWeights: { 'クール＆ストリート': 3, 'スポーティ＆アクティブ': 1 } },
+      { id: 'h9_ribbon', label: '細いリボンを一緒に編み込むドリーミー三つ編み', emoji: '🎀', categoryWeights: { 'ファンタジー＆ドリーム': 3 }, secretTag: 'magical' },
+    ],
+  },
+  {
+    id: 'h10',
+    genre: 'hair',
+    questionText: '朝、髪をセットする時間はどれくらいかけたい？',
+    description: '毎朝のリアルな身支度時間！',
+    options: [
+      { id: 'h10_speed', label: 'パパッと1〜2分！とかしてすぐ出発！', emoji: '⚡', categoryWeights: { 'スポーティ＆アクティブ': 3 } },
+      { id: 'h10_cute', label: '5分くらいで可愛く結んだりピンを留めたい！', emoji: '🎀', categoryWeights: { 'スウィート＆ガーリー': 3 } },
+      { id: 'h10_mirror', label: '10分以上！前髪の毛束や分け目をじっくりチェック！', emoji: '🔍', categoryWeights: { 'トレンド＆アイドル': 3 } },
+    ],
+  },
+  {
+    id: 'h11',
+    genre: 'hair',
+    questionText: '学校でお友達に「その髪型かわいい！」と褒められたら？',
+    description: '嬉しくなっちゃう最高の瞬間！',
+    options: [
+      { id: 'h11_happy', label: '「ほんと！？ありがとう！」と満面の笑顔ではにかむ', emoji: '😄', categoryWeights: { 'スウィート＆ガーリー': 3 } },
+      { id: 'h11_teach', label: '「簡単だよ、やり方教えてあげるね！」と得意げになる', emoji: '✌️', categoryWeights: { 'スポーティ＆アクティブ': 3 } },
+      { id: 'h11_cool', label: '「へへ、今日ちょっと頑張ったんだ」とクールに返す', emoji: '😎', categoryWeights: { 'クール＆ストリート': 3 } },
+    ],
+  },
+  {
+    id: 'h12',
+    genre: 'hair',
+    questionText: '憧れのヒロインの髪型ならどれ？',
+    description: 'アニメや物語に登場するヒロインたち！',
+    options: [
+      { id: 'h12_twintail', label: '風になびくツインテールの魔法少女', emoji: '🪄', categoryWeights: { 'ファンタジー＆ドリーム': 3 }, secretTag: 'magical' },
+      { id: 'h12_silver', label: '光り輝くシルバーヘアやサイバーツイン', emoji: '⚡', categoryWeights: { 'サブカル＆Y2K': 3 }, secretTag: 'cyber' },
+      { id: 'h12_princess', label: '王冠をのせた気品あふれる金髪ロールヘア', emoji: '👑', categoryWeights: { 'クラシック＆レトロ': 3 }, secretTag: 'pharaoh' },
+      { id: 'h12_short', label: '颯爽と駆け抜けるスポーティショートの主人公', emoji: '🏃‍♀️', categoryWeights: { 'スポーティ＆アクティブ': 3 } },
+    ],
+  },
+  {
+    id: 'h13',
+    genre: 'hair',
+    questionText: '前髪にカーラー（くるんっと巻くやつ）を使ったことある？',
+    description: '前髪のふんわりカール作りに！',
+    options: [
+      { id: 'h13_yes', label: '使ってる！朝の準備中に前髪をふんわりキープ！', emoji: '🌸', categoryWeights: { 'トレンド＆アイドル': 3 } },
+      { id: 'h13_natural', label: '使ってない！自然なストレートやブロー派', emoji: '🍃', categoryWeights: { 'ナチュラル＆ピュア': 3 } },
+      { id: 'h13_want', label: 'まだだけど、ちょっとやってみたい！', emoji: '👀', categoryWeights: { 'スウィート＆ガーリー': 2 } },
+    ],
+  },
+  {
+    id: 'h14',
+    genre: 'hair',
+    questionText: 'おだんごヘア（シニヨン）にするならどこで作る？',
+    description: '高さによって印象がガラッと変わる！',
+    options: [
+      { id: 'h14_high', label: '頭のてっぺん！元気いっぱいハイおだんご', emoji: '🍡', categoryWeights: { 'スポーティ＆アクティブ': 3 } },
+      { id: 'h14_low', label: '首もとの低め位置で大人っぽい上品おだんご', emoji: '🦢', categoryWeights: { 'クラシック＆レトロ': 3 } },
+      { id: 'h14_two', label: '左右に2つ作ってくまさん・ひつじさん風！', emoji: '🐑', categoryWeights: { 'アニマル＆マスコット': 3 } },
+    ],
+  },
+  {
+    id: 'h15',
+    genre: 'hair',
+    questionText: 'ヘアオイルやヘアミルクは使ってる？',
+    description: 'サラサラうるうるな美髪ケア！',
+    options: [
+      { id: 'h15_oil', label: 'サラサラになるオイルでツヤ出ししてる！', emoji: '💧', categoryWeights: { 'トレンド＆アイドル': 3 } },
+      { id: 'h15_water', label: '寝ぐせ直しウォーターでさっぱり整える！', emoji: '🚿', categoryWeights: { 'スポーティ＆アクティブ': 3 } },
+      { id: 'h15_none', label: 'ブラッシングだけで地毛の自然なツヤをキープ！', emoji: '🌿', categoryWeights: { 'ナチュラル＆ピュア': 3 } },
+    ],
+  },
+];
