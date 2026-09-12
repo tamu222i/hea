@@ -1,0 +1,6 @@
+{
+  "name": "小学生ヘア＆ファッションスタイル診断",
+  "description": "好きな色や食べもの、気分を選んで似合うヘアアレンジや学校・休日ファッション、似合う色を楽しく診断するアプリ",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
