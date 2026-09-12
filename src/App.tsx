@@ -36,8 +36,11 @@ export default function App() {
   // Unlocked secret styles & near-miss history
   const [unlockedSecretIds, setUnlockedSecretIds] = useState<string[]>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_UNLOCKED_KEY);
-      return saved ? JSON.parse(saved) : [];
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const saved = window.localStorage.getItem(STORAGE_UNLOCKED_KEY);
+        return saved ? JSON.parse(saved) : [];
+      }
+      return [];
     } catch {
       return [];
     }
@@ -45,8 +48,11 @@ export default function App() {
 
   const [nearMissSecrets, setNearMissSecrets] = useState<Record<string, { message: string; hint: string }>>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_NEARMISS_KEY);
-      return saved ? JSON.parse(saved) : {};
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const saved = window.localStorage.getItem(STORAGE_NEARMISS_KEY);
+        return saved ? JSON.parse(saved) : {};
+      }
+      return {};
     } catch {
       return {};
     }
@@ -55,7 +61,9 @@ export default function App() {
   // Save to localStorage
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_UNLOCKED_KEY, JSON.stringify(unlockedSecretIds));
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(STORAGE_UNLOCKED_KEY, JSON.stringify(unlockedSecretIds));
+      }
     } catch {
       // ignore
     }
@@ -63,7 +71,9 @@ export default function App() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_NEARMISS_KEY, JSON.stringify(nearMissSecrets));
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(STORAGE_NEARMISS_KEY, JSON.stringify(nearMissSecrets));
+      }
     } catch {
       // ignore
     }

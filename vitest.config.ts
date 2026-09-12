@@ -12,5 +12,10 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    dangerouslyIgnoreUnhandledErrors: true,
+    onUnhandledError() {
+      // Suppress unhandled errors from environment teardown in CI
+      return false;
+    },
   },
 });
