@@ -228,7 +228,6 @@ export default function App() {
       <Header
         onReset={handleReset}
         onOpenTypesList={() => setIsAllTypesModalOpen(true)}
-        onOpenFortune={() => setIsFortuneModalOpen(true)}
         isResultView={!!resultProfile}
       />
 
@@ -278,8 +277,8 @@ export default function App() {
                 </div>
                 <div className="p-3 rounded-2xl bg-amber-50/70 border border-amber-100">
                   <div className="text-lg mb-0.5">🔮</div>
-                  <div className="text-xs font-bold text-slate-800">100種占い</div>
-                  <div className="text-[10px] text-slate-500">ラッキーアイテム</div>
+                  <div className="text-xs font-bold text-slate-800">10段階おみくじ</div>
+                  <div className="text-[10px] text-slate-500">5問回答で発表！</div>
                 </div>
                 <div className="p-3 rounded-2xl bg-purple-50/70 border border-purple-100">
                   <div className="text-lg mb-0.5">✨</div>
@@ -321,11 +320,11 @@ export default function App() {
                   </button>
 
                   <button
-                    id="open-fortune-start-btn"
+                    id="browse-all-items-start-btn"
                     onClick={() => setIsFortuneModalOpen(true)}
                     className="py-2.5 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    <span>🔮 今日の100種アイテム占い</span>
+                    <span>🎁 全100種アイテム一覧</span>
                   </button>
                 </div>
               </div>
@@ -358,14 +357,15 @@ export default function App() {
                 <NearMissAlert nearMiss={resultProfile.nearMiss} />
               )}
 
-              {/* Result Header & Illustration */}
+              {/* Result Header & Illustration (スタイル決定) */}
               <ResultHeader profile={resultProfile} />
 
-              {/* Fortune Card & Lucky Item (100 Items Collection System) */}
+              {/* スタイルの次に表示する「おみくじ10段階評価＆ラッキーアイテム」カード */}
               <FortuneCard
                 typeId={resultProfile.typeId}
                 styleName={resultProfile.typeName}
                 category={resultProfile.category}
+                answeredOptions={selectedPoolOptions}
                 onOpenCollection={() => setIsFortuneModalOpen(true)}
                 onCollectItem={handleCollectItem}
               />
@@ -401,19 +401,19 @@ export default function App() {
                   もう一度ちがう5問で診断する
                 </button>
                 <button
-                  id="bottom-fortune-btn"
-                  onClick={() => setIsFortuneModalOpen(true)}
-                  className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-sm border border-amber-300 shadow-sm transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <span>🔮 100種アイテム占い図鑑</span>
-                </button>
-                <button
                   id="bottom-all-types-btn"
                   onClick={() => setIsAllTypesModalOpen(true)}
                   className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-sm shadow-md shadow-pink-200 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <Heart className="w-4 h-4 fill-white" />
                   <span>全105タイプ大図鑑</span>
+                </button>
+                <button
+                  id="bottom-all-items-btn"
+                  onClick={() => setIsFortuneModalOpen(true)}
+                  className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-sm border border-amber-300 shadow-sm transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <span>🎁 全100種アイテム一覧</span>
                 </button>
               </div>
             </motion.div>
