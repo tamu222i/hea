@@ -4,10 +4,16 @@ import { Sparkles, RefreshCw, BookOpen } from 'lucide-react';
 interface HeaderProps {
   onReset: () => void;
   onOpenTypesList: () => void;
+  onOpenFortune?: () => void;
   isResultView?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onReset, onOpenTypesList, isResultView }) => {
+export const Header: React.FC<HeaderProps> = ({
+  onReset,
+  onOpenTypesList,
+  onOpenFortune,
+  isResultView,
+}) => {
   return (
     <header id="app-header" className="w-full bg-white/90 backdrop-blur-md border-b border-pink-100 sticky top-0 z-40 px-4 py-3 sm:px-6">
       <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -28,10 +34,22 @@ export const Header: React.FC<HeaderProps> = ({ onReset, onOpenTypesList, isResu
         </div>
 
         <div className="flex items-center gap-2">
+          {onOpenFortune && (
+            <button
+              id="header-fortune-btn"
+              onClick={onOpenFortune}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 rounded-xl transition-colors border border-amber-200/80 cursor-pointer"
+            >
+              <span>🔮</span>
+              <span className="hidden sm:inline">100種アイテム占い</span>
+              <span className="sm:hidden">占い</span>
+            </button>
+          )}
+
           <button
             id="view-all-types-btn"
             onClick={onOpenTypesList}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-pink-600 hover:bg-pink-50 rounded-xl transition-colors border border-slate-200/80"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-pink-600 hover:bg-pink-50 rounded-xl transition-colors border border-slate-200/80 cursor-pointer"
           >
             <BookOpen className="w-4 h-4 text-pink-500" />
             <span className="hidden sm:inline">全105スタイル図鑑</span>
@@ -42,7 +60,7 @@ export const Header: React.FC<HeaderProps> = ({ onReset, onOpenTypesList, isResu
             <button
               id="reset-diagnosis-btn"
               onClick={onReset}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-pink-600 bg-pink-50 hover:bg-pink-100 rounded-xl transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-pink-600 bg-pink-50 hover:bg-pink-100 rounded-xl transition-colors cursor-pointer"
             >
               <RefreshCw className="w-4 h-4" />
               <span>もう一度診断</span>

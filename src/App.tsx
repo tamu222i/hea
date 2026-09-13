@@ -12,17 +12,21 @@ import { HairArrangementCard } from './components/HairArrangementCard';
 import { FashionCoordCard } from './components/FashionCoordCard';
 import { AiStylistConsultant } from './components/AiStylistConsultant';
 import { AllTypesModal } from './components/AllTypesModal';
+import { FortuneModal } from './components/FortuneModal';
+import { FortuneCard } from './components/FortuneCard';
 import { NearMissAlert } from './components/NearMissAlert';
 import { selectFiveQuestions, PoolQuestion, QuestionOption } from './domain/models/QuestionPool';
 import { DiagnosisDomainService, DynamicSelectedOption } from './domain/services/DiagnosisDomainService';
 import { UserAnswers } from './domain/schemas/diagnosisSchema';
 import { StyleProfile, StyleTypeId } from './domain/models/StyleTypes';
 import { PRESET_STYLES } from './infrastructure/repositories/presetStyles';
-import { Sparkles, ArrowRight, Heart, Star, Dices } from 'lucide-react';
+import { Sparkles, ArrowRight, Heart, Star, Dices, Gift } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 const STORAGE_UNLOCKED_KEY = 'kids_style_unlocked_secrets_v1';
 const STORAGE_NEARMISS_KEY = 'kids_style_nearmiss_secrets_v1';
+const STORAGE_DISCOVERED_KEY = 'kids_style_discovered_styles_v1';
+const STORAGE_LUCKY_ITEMS_KEY = 'kids_style_collected_lucky_items_v1';
 
 export default function App() {
   const [questions, setQuestions] = useState<PoolQuestion[]>(() => selectFiveQuestions());
@@ -32,6 +36,33 @@ export default function App() {
   const [answers, setAnswers] = useState<Partial<UserAnswers>>({});
   const [resultProfile, setResultProfile] = useState<StyleProfile | null>(null);
   const [isAllTypesModalOpen, setIsAllTypesModalOpen] = useState<boolean>(false);
+  const [isFortuneModalOpen, setIsFortuneModalOpen] = useState<boolean>(false);
+
+  // Discovered styles (all diagnosed styles saved forever!)
+  const [discoveredStyleIds, setDiscoveredStyleIds] = useState<string[]>(() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const saved = window.localStorage.getItem(STORAGE_DISCOVERED_KEY);
+        return saved ? JSON.parse(saved) : [];
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Collected lucky items (out of 100)
+  const [collectedLuckyItemIds, setCollectedLuckyItemIds] = useState<number[]>(() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const saved = window.localStorage.getItem(STORAGE_LUCKY_ITEMS_KEY);
+        return saved ? JSON.parse(saved) : [];
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  });
 
   // Unlocked secret styles & near-miss history
   const [unlockedSecretIds, setUnlockedSecretIds] = useState<string[]>(() => {
@@ -62,6 +93,26 @@ export default function App() {
   useEffect(() => {
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(STORAGE_DISCOVERED_KEY, JSON.stringify(discoveredStyleIds));
+      }
+    } catch {
+      // ignore
+    }
+  }, [discoveredStyleIds]);
+
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(STORAGE_LUCKY_ITEMS_KEY, JSON.stringify(collectedLuckyItemIds));
+      }
+    } catch {
+      // ignore
+    }
+  }, [collectedLuckyItemIds]);
+
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
         window.localStorage.setItem(STORAGE_UNLOCKED_KEY, JSON.stringify(unlockedSecretIds));
       }
     } catch {
@@ -80,6 +131,11 @@ export default function App() {
   }, [nearMissSecrets]);
 
   const diagnosisService = useMemo(() => new DiagnosisDomainService(), []);
+
+  // Collect a lucky item
+  const handleCollectItem = (id: number) => {
+    setCollectedLuckyItemIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+  };
 
   // Current Question
   const currentQuestion = questions[currentStepIndex];
@@ -113,6 +169,9 @@ export default function App() {
     } else {
       // Completed all 5 questions! Diagnose using dynamic answers
       const result = diagnosisService.diagnoseDynamic({ selectedOptions: newSelected });
+
+      // Save to discovered styles (forever remembered even after reload!)
+      setDiscoveredStyleIds((prev) => (prev.includes(result.typeId) ? prev : [...prev, result.typeId]));
 
       // Unlock secret if diagnosed
       if (result.isSecret) {
@@ -159,6 +218,7 @@ export default function App() {
     if (profile.isSecret) {
       setUnlockedSecretIds((prev) => (prev.includes(typeId) ? prev : [...prev, typeId]));
     }
+    setDiscoveredStyleIds((prev) => (prev.includes(typeId) ? prev : [...prev, typeId]));
     setResultProfile(profile);
     setIsStarted(true);
   };
@@ -168,6 +228,7 @@ export default function App() {
       <Header
         onReset={handleReset}
         onOpenTypesList={() => setIsAllTypesModalOpen(true)}
+        onOpenFortune={() => setIsFortuneModalOpen(true)}
         isResultView={!!resultProfile}
       />
 
@@ -216,14 +277,26 @@ export default function App() {
                   <div className="text-[10px] text-slate-500">学校OKな図解つき</div>
                 </div>
                 <div className="p-3 rounded-2xl bg-amber-50/70 border border-amber-100">
-                  <div className="text-lg mb-0.5">🎨</div>
-                  <div className="text-xs font-bold text-slate-800">似合う色</div>
-                  <div className="text-[10px] text-slate-500">ラッキーカラー</div>
+                  <div className="text-lg mb-0.5">🔮</div>
+                  <div className="text-xs font-bold text-slate-800">100種占い</div>
+                  <div className="text-[10px] text-slate-500">ラッキーアイテム</div>
                 </div>
                 <div className="p-3 rounded-2xl bg-purple-50/70 border border-purple-100">
                   <div className="text-lg mb-0.5">✨</div>
                   <div className="text-xs font-bold text-slate-800">105スタイル</div>
-                  <div className="text-[10px] text-slate-500">シークレット5種</div>
+                  <div className="text-[10px] text-slate-500">記憶＆保存対応</div>
+                </div>
+              </div>
+
+              {/* Progress Counters (Styles & Lucky Items) */}
+              <div className="flex items-center justify-center gap-3 mb-6 flex-wrap">
+                <div className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 flex items-center gap-1.5">
+                  <span>📖 図鑑GET:</span>
+                  <span className="font-black text-emerald-950">{discoveredStyleIds.length} / 105種</span>
+                </div>
+                <div className="px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-xs font-bold text-amber-800 flex items-center gap-1.5">
+                  <span>🔮 アイテム収集:</span>
+                  <span className="font-black text-amber-950">{collectedLuckyItemIds.length} / 100種</span>
                 </div>
               </div>
 
@@ -238,13 +311,23 @@ export default function App() {
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
 
-                <button
-                  id="browse-all-styles-start-btn"
-                  onClick={() => setIsAllTypesModalOpen(true)}
-                  className="w-full py-2.5 rounded-xl bg-slate-50 hover:bg-pink-50 border border-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                >
-                  <span>📖 全105種類のスタイル図鑑を自由に見る</span>
-                </button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button
+                    id="browse-all-styles-start-btn"
+                    onClick={() => setIsAllTypesModalOpen(true)}
+                    className="py-2.5 px-3 rounded-xl bg-slate-50 hover:bg-pink-50 border border-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <span>📖 全105種スタイル図鑑</span>
+                  </button>
+
+                  <button
+                    id="open-fortune-start-btn"
+                    onClick={() => setIsFortuneModalOpen(true)}
+                    className="py-2.5 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <span>🔮 今日の100種アイテム占い</span>
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
@@ -278,6 +361,15 @@ export default function App() {
               {/* Result Header & Illustration */}
               <ResultHeader profile={resultProfile} />
 
+              {/* Fortune Card & Lucky Item (100 Items Collection System) */}
+              <FortuneCard
+                typeId={resultProfile.typeId}
+                styleName={resultProfile.typeName}
+                category={resultProfile.category}
+                onOpenCollection={() => setIsFortuneModalOpen(true)}
+                onCollectItem={handleCollectItem}
+              />
+
               {/* Recommended Color Palette */}
               <ColorPaletteView colors={resultProfile.recommendedColors} />
 
@@ -309,12 +401,19 @@ export default function App() {
                   もう一度ちがう5問で診断する
                 </button>
                 <button
+                  id="bottom-fortune-btn"
+                  onClick={() => setIsFortuneModalOpen(true)}
+                  className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-sm border border-amber-300 shadow-sm transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <span>🔮 100種アイテム占い図鑑</span>
+                </button>
+                <button
                   id="bottom-all-types-btn"
                   onClick={() => setIsAllTypesModalOpen(true)}
                   className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-sm shadow-md shadow-pink-200 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <Heart className="w-4 h-4 fill-white" />
-                  <span>ほかの全タイプも見てみる</span>
+                  <span>全105タイプ大図鑑</span>
                 </button>
               </div>
             </motion.div>
@@ -331,10 +430,19 @@ export default function App() {
         onSelectType={handleSelectTypeFromModal}
         unlockedSecretIds={unlockedSecretIds}
         nearMissSecrets={nearMissSecrets}
+        discoveredStyleIds={discoveredStyleIds}
+      />
+
+      {/* 100 Lucky Items Fortune Modal */}
+      <FortuneModal
+        isOpen={isFortuneModalOpen}
+        onClose={() => setIsFortuneModalOpen(false)}
+        collectedItemIds={collectedLuckyItemIds}
+        onCollectItem={handleCollectItem}
       />
 
       <footer className="w-full py-4 text-center text-xs text-slate-400 border-t border-pink-100 bg-white/50">
-        小学生ヘア＆ファッションスタイル診断 • お友達と楽しく試してみてね
+        小学生ヘア＆ファッションスタイル診断 • 全105スタイル＆100種ラッキーアイテム占い
       </footer>
     </div>
   );

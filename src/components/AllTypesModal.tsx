@@ -11,6 +11,7 @@ interface AllTypesModalProps {
   onSelectType: (typeId: StyleTypeId) => void;
   unlockedSecretIds?: string[];
   nearMissSecrets?: Record<string, { message: string; hint: string }>;
+  discoveredStyleIds?: string[];
 }
 
 export const AllTypesModal: React.FC<AllTypesModalProps> = ({
@@ -21,6 +22,7 @@ export const AllTypesModal: React.FC<AllTypesModalProps> = ({
   onSelectType,
   unlockedSecretIds = [],
   nearMissSecrets = {},
+  discoveredStyleIds = [],
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -29,6 +31,11 @@ export const AllTypesModal: React.FC<AllTypesModalProps> = ({
   const styleList: StyleProfile[] = useMemo(() => {
     return allStyles ? Object.values(allStyles) : [];
   }, [allStyles]);
+
+  // Discovered count
+  const discoveredCount = useMemo(() => {
+    return styleList.filter((s) => discoveredStyleIds.includes(s.typeId)).length;
+  }, [styleList, discoveredStyleIds]);
 
   // Extract unique categories in order
   const categories = useMemo(() => {
@@ -42,9 +49,13 @@ export const AllTypesModal: React.FC<AllTypesModalProps> = ({
   // Filter styles based on category & search query
   const filteredStyles = useMemo(() => {
     return styleList.filter((style) => {
-      // Category check
+      // Category or collection check
       if (selectedCategory === 'secret') {
         if (!style.isSecret) return false;
+      } else if (selectedCategory === 'discovered') {
+        if (!discoveredStyleIds.includes(style.typeId)) return false;
+      } else if (selectedCategory === 'undiscovered') {
+        if (discoveredStyleIds.includes(style.typeId)) return false;
       } else if (selectedCategory !== 'all') {
         if (style.category !== selectedCategory) return false;
       }
@@ -61,7 +72,7 @@ export const AllTypesModal: React.FC<AllTypesModalProps> = ({
 
       return true;
     });
-  }, [styleList, selectedCategory, searchQuery]);
+  }, [styleList, selectedCategory, searchQuery, discoveredStyleIds]);
 
   const secretCount = useMemo(() => {
     return styleList.filter((s) => s.isSecret).length;
@@ -100,12 +111,12 @@ export const AllTypesModal: React.FC<AllTypesModalProps> = ({
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-base sm:text-lg font-black text-slate-800">
                   スタイル大図鑑
                 </h3>
-                <span className="text-xs font-black px-2 py-0.5 rounded-full bg-pink-100 text-pink-700">
-                  全{styleList.length}種
+                <span className="text-xs font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1">
+                  🎉 診断GET: {discoveredCount}/{styleList.length}種
                 </span>
                 <span className="text-xs font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 flex items-center gap-1">
                   <Lock className="w-3 h-3" />
@@ -113,7 +124,7 @@ export const AllTypesModal: React.FC<AllTypesModalProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-500 font-medium">
-                気になるスタイルをタップすると詳細コーデ＆ヘアアレンジを見られるよ！
+                当てたスタイル＆シークレットは自動保存！リロードしても消えないよ♪
               </p>
             </div>
           </div>
@@ -121,7 +132,7 @@ export const AllTypesModal: React.FC<AllTypesModalProps> = ({
           <button
             id="close-all-types-modal-btn"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors shadow-xs border border-slate-200"
+            className="w-8 h-8 rounded-full bg-white hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors shadow-xs border border-slate-200 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -160,6 +171,30 @@ export const AllTypesModal: React.FC<AllTypesModalProps> = ({
               }`}
             >
               すべて ({styleList.length})
+            </button>
+
+            <button
+              id="category-tab-discovered"
+              onClick={() => setSelectedCategory('discovered')}
+              className={`shrink-0 px-3 py-1.5 rounded-full font-bold flex items-center gap-1 transition-all ${
+                selectedCategory === 'discovered'
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+              }`}
+            >
+              <span>🎉 GET済み ({discoveredCount})</span>
+            </button>
+
+            <button
+              id="category-tab-undiscovered"
+              onClick={() => setSelectedCategory('undiscovered')}
+              className={`shrink-0 px-3 py-1.5 rounded-full font-bold flex items-center gap-1 transition-all ${
+                selectedCategory === 'undiscovered'
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
+              }`}
+            >
+              <span>🔍 未発見 ({styleList.length - discoveredCount})</span>
             </button>
 
             <button
@@ -208,6 +243,7 @@ export const AllTypesModal: React.FC<AllTypesModalProps> = ({
               const isSelected = style.typeId === currentTypeId;
               const isSecret = !!style.isSecret;
               const isUnlocked = !isSecret || unlockedSecretIds.includes(style.typeId);
+              const isDiscovered = discoveredStyleIds.includes(style.typeId);
               const isHintRevealed = revealedSecrets[style.typeId];
               const nearMiss = nearMissSecrets[style.typeId];
 
@@ -265,6 +301,12 @@ export const AllTypesModal: React.FC<AllTypesModalProps> = ({
                         }`}>
                           {isUnlocked ? <Sparkles className="w-2.5 h-2.5" /> : <Lock className="w-2.5 h-2.5" />}
                           {isUnlocked ? 'SECRET 解禁済' : 'SECRET 未解禁'}
+                        </span>
+                      )}
+                      {isDiscovered && (
+                        <span className="text-[10px] font-black bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shadow-2xs">
+                          <Check className="w-2.5 h-2.5 text-emerald-600" />
+                          診断GET済
                         </span>
                       )}
                       {nearMiss && (
