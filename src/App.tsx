@@ -14,6 +14,7 @@ import { AiStylistConsultant } from './components/AiStylistConsultant';
 import { AllTypesModal } from './components/AllTypesModal';
 import { FortuneModal } from './components/FortuneModal';
 import { FortuneCard } from './components/FortuneCard';
+import { TotalStyleBoardCard } from './components/TotalStyleBoardCard';
 import { NearMissAlert } from './components/NearMissAlert';
 import { selectFiveQuestions, PoolQuestion, QuestionOption } from './domain/models/QuestionPool';
 import { DiagnosisDomainService, DynamicSelectedOption } from './domain/services/DiagnosisDomainService';
@@ -35,6 +36,7 @@ export default function App() {
   const [selectedPoolOptions, setSelectedPoolOptions] = useState<DynamicSelectedOption[]>([]);
   const [answers, setAnswers] = useState<Partial<UserAnswers>>({});
   const [resultProfile, setResultProfile] = useState<StyleProfile | null>(null);
+  const [currentAiAdvice, setCurrentAiAdvice] = useState<string>('');
   const [isAllTypesModalOpen, setIsAllTypesModalOpen] = useState<boolean>(false);
   const [isFortuneModalOpen, setIsFortuneModalOpen] = useState<boolean>(false);
 
@@ -210,6 +212,7 @@ export default function App() {
     setSelectedPoolOptions([]);
     setAnswers({});
     setResultProfile(null);
+    setCurrentAiAdvice('');
   };
 
   // Direct Type Selection from Modal
@@ -370,6 +373,13 @@ export default function App() {
                 onCollectItem={handleCollectItem}
               />
 
+              {/* おすすめカラー、ヘアアレンジ、ファッションコーデ、AIスタイリストを組み合わせた1枚画像スタイルカード */}
+              <TotalStyleBoardCard
+                profile={resultProfile}
+                aiAdvice={currentAiAdvice}
+                luckyItemName={resultProfile.luckyItem}
+              />
+
               {/* Recommended Color Palette */}
               <ColorPaletteView colors={resultProfile.recommendedColors} />
 
@@ -389,6 +399,7 @@ export default function App() {
               <AiStylistConsultant
                 profile={resultProfile}
                 hairLength={answers.hairLength || 'medium'}
+                onAdviceGenerated={setCurrentAiAdvice}
               />
 
               {/* Bottom Action Cards */}

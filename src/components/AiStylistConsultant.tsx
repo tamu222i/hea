@@ -6,6 +6,7 @@ import { Sparkles, Bot, Loader2, Send } from 'lucide-react';
 interface AiStylistConsultantProps {
   profile: StyleProfile;
   hairLength: 'short' | 'medium' | 'long';
+  onAdviceGenerated?: (advice: string) => void;
 }
 
 const EVENT_OPTIONS = [
@@ -25,7 +26,7 @@ const WEATHER_OPTIONS = [
   { label: 'ひんやり寒い日', emoji: '🧣' },
 ];
 
-export const AiStylistConsultant: React.FC<AiStylistConsultantProps> = ({ profile, hairLength }) => {
+export const AiStylistConsultant: React.FC<AiStylistConsultantProps> = ({ profile, hairLength, onAdviceGenerated }) => {
   const [selectedEvent, setSelectedEvent] = useState<string>('学校・授業の日');
   const [selectedWeather, setSelectedWeather] = useState<string>('ぽかぽか晴れ');
   const [adviceText, setAdviceText] = useState<string>('');
@@ -41,9 +42,12 @@ export const AiStylistConsultant: React.FC<AiStylistConsultantProps> = ({ profil
         hairLength,
       });
       setAdviceText(advice);
+      onAdviceGenerated?.(advice);
     } catch (err) {
       console.error(err);
-      setAdviceText('いつも笑顔で元気いっぱいなあなたに、今日のスタイルはとってもお似合いだよ！いってらっしゃい✨');
+      const fallback = 'いつも笑顔で元気いっぱいなあなたに、今日のスタイルはとってもお似合いだよ！いってらっしゃい✨';
+      setAdviceText(fallback);
+      onAdviceGenerated?.(fallback);
     } finally {
       setIsLoading(false);
     }
