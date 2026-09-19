@@ -184,7 +184,7 @@ export default function App() {
       if (result.nearMiss) {
         setNearMissSecrets((prev) => ({
           ...prev,
-          [result.nearMiss!.secretTypeId]: {
+          [result.nearMiss!.secretId]: {
             message: result.nearMiss!.message,
             hint: result.nearMiss!.hint,
           },
@@ -251,7 +251,7 @@ export default function App() {
 
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-50 text-pink-600 text-xs font-black tracking-wider uppercase mb-3">
                 <Star className="w-3.5 h-3.5 fill-pink-500" />
-                小学生向け・かんたん5問クイズ
+                小学生向け・かんたん5問クイズ（シークレット覚醒扉つき！）
               </span>
 
               <h2 className="text-2xl sm:text-3xl font-black text-slate-800 tracking-tight leading-snug mb-3">
@@ -267,8 +267,8 @@ export default function App() {
                 すきな色や食べもの、今日の気分を選ぶだけで、
                 あなたの魅力を引き出すスタイルタイプがわかるよ！
                 <br className="hidden sm:inline" />
-                全100問の質問から<strong className="text-pink-600 font-black">毎回ちがう5問</strong>をランダム出題♪
-                めったに出ない<strong className="text-amber-600 font-black">伝説＆増量シークレット</strong>も見つけてね！
+                全115問以上の質問から<strong className="text-pink-600 font-black">毎回ちがう5問</strong>をランダム出題♪
+                鬼滅の刃・ガーリー・ポップ・クール・ナチュラルなど<strong className="text-amber-600 font-black">105種類のシークレットスタイル</strong>も目覚めるかも！？
               </p>
 
               {/* Feature Highlights */}

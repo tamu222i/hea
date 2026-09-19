@@ -94,10 +94,10 @@ export const FASHION_QUESTIONS: PoolQuestion[] = [
     questionText: '柄物のアイテムなら、どれがいちばん好き？',
     description: '服や文房具によく選ぶパターンは？',
     options: [
+      { id: 'f8_kimetsu', label: '市松模様や麻の葉、炎や藤の花などの和風・剣士柄', emoji: '⚔️', categoryWeights: { 'クラシック＆レトロ': 2, 'クール＆ストリート': 2 }, secretTag: 'kimetsu' },
       { id: 'f8_border', label: 'ボーダー（しましま）やストライプ', emoji: '🏁', categoryWeights: { 'スポーティ＆アクティブ': 2, 'クール＆ストリート': 2 } },
       { id: 'f8_check', label: '上品なタータンチェック・ギンガムチェック', emoji: '🇬🇧', categoryWeights: { 'クラシック＆レトロ': 3 } },
       { id: 'f8_flower', label: '可憐な小花柄やボタニカルフラワー', emoji: '🌼', categoryWeights: { 'スウィート＆ガーリー': 2, 'シーズン＆ネイチャー': 2 } },
-      { id: 'f8_animal', label: 'ヒョウ柄やゼブラなどのアニマル柄アクセント', emoji: '🐆', categoryWeights: { 'アニマル＆マスコット': 3, 'クール＆ストリート': 1 } },
       { id: 'f8_space', label: '星空・星座・ギャラクシー柄', emoji: '✨', categoryWeights: { 'ファンタジー＆ドリーム': 3 }, secretTag: 'cosmic' },
     ],
   },
@@ -132,6 +132,7 @@ export const FASHION_QUESTIONS: PoolQuestion[] = [
     questionText: '休日の特別なおめかしワンピースならどれ？',
     description: 'お誕生日や発表会、テーマパークに着ていくなら？',
     options: [
+      { id: 'f11_strawberry', label: '真っ赤ないちごと純白レースたっぷりのドールドレス', emoji: '🍓', categoryWeights: { 'スウィート＆ガーリー': 3 }, secretTag: 'secret_girly' },
       { id: 'f11_shirt', label: 'すっきり爽やかなシャツワンピース', emoji: '👗', categoryWeights: { 'ナチュラル＆ピュア': 3 } },
       { id: 'f11_chiffon', label: 'レースやチュールたっぷりのプリンセスドレス', emoji: '👸', categoryWeights: { 'スウィート＆ガーリー': 3, 'ファンタジー＆ドリーム': 1 }, secretTag: 'magical' },
       { id: 'f11_camisole', label: 'Tシャツと重ね着するキャミワンピ', emoji: '✨', categoryWeights: { 'トレンド＆アイドル': 3 } },
@@ -156,6 +157,7 @@ export const FASHION_QUESTIONS: PoolQuestion[] = [
     questionText: '好きなアクセサリーや小物はどれ？',
     description: '休日のお出かけにつけたいアイテム！',
     options: [
+      { id: 'f13_kimetsu', label: '日輪刀の鍔（つば）チャームや和柄の巾着袋', emoji: '🗡️', categoryWeights: { 'クラシック＆レトロ': 2, 'クール＆ストリート': 2 }, secretTag: 'kimetsu' },
       { id: 'f13_wrist', label: 'スポーティなリストバンドや防水デジタル時計', emoji: '⌚', categoryWeights: { 'スポーティ＆アクティブ': 3 } },
       { id: 'f13_heart', label: 'ぷっくりハートやビーズのリング・ネックレス', emoji: '💍', categoryWeights: { 'スウィート＆ガーリー': 3 }, secretTag: 'magical' },
       { id: 'f13_silver', label: 'シルバーのチェーンアクセやイヤーカフ風ピン', emoji: '⛓️', categoryWeights: { 'クール＆ストリート': 3, 'サブカル＆Y2K': 1 }, secretTag: 'cyber' },
