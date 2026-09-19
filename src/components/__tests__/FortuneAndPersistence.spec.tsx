@@ -167,13 +167,15 @@ describe('Fortune Telling & Persistence Verification Test', () => {
     const resultContainer = container.querySelector('div[class*="space-y-6"]');
     expect(resultContainer).not.toBeNull();
 
-    // 要素の出現順を検証
+    // 要素の出現順を検証: スタイルヘッダー -> スナップ画像ボード（上のほうに表示） -> おみくじカード
     const elements = Array.from(resultContainer?.children || []);
     const headerIndex = elements.findIndex((el) => el.id === 'diagnosis-result-header');
+    const boardIndex = elements.findIndex((el) => el.id === 'total-style-board-card');
     const fortuneIndex = elements.findIndex((el) => el.id === 'fortune-result-card');
 
     expect(headerIndex).toBeGreaterThanOrEqual(0);
-    expect(fortuneIndex).toBe(headerIndex + 1); // スタイルの直後！
+    expect(boardIndex).toBe(headerIndex + 1); // スタイルの直後にスナップ画像
+    expect(fortuneIndex).toBe(boardIndex + 1); // スナップ画像の直後におみくじカード！
 
     expect(container.querySelector('#omikuji-grade-box')).not.toBeNull();
     expect(container.textContent).toContain('おみくじ10段階評価');

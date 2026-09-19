@@ -363,7 +363,14 @@ export default function App() {
               {/* Result Header & Illustration (スタイル決定) */}
               <ResultHeader profile={resultProfile} />
 
-              {/* スタイルの次に表示する「おみくじ10段階評価＆ラッキーアイテム」カード */}
+              {/* 提案アイテム着用！トータルコーデイラスト（1枚画像）スナップカード - 結果の最上部に配置 */}
+              <TotalStyleBoardCard
+                profile={resultProfile}
+                aiAdvice={currentAiAdvice}
+                luckyItemName={resultProfile.luckyItem}
+              />
+
+              {/* おみくじ10段階評価＆ラッキーアイテムカード */}
               <FortuneCard
                 typeId={resultProfile.typeId}
                 styleName={resultProfile.typeName}
@@ -371,13 +378,6 @@ export default function App() {
                 answeredOptions={selectedPoolOptions}
                 onOpenCollection={() => setIsFortuneModalOpen(true)}
                 onCollectItem={handleCollectItem}
-              />
-
-              {/* おすすめカラー、ヘアアレンジ、ファッションコーデ、AIスタイリストを組み合わせた1枚画像スタイルカード */}
-              <TotalStyleBoardCard
-                profile={resultProfile}
-                aiAdvice={currentAiAdvice}
-                luckyItemName={resultProfile.luckyItem}
               />
 
               {/* Recommended Color Palette */}

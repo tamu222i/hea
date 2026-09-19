@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { StyleProfile } from '../domain/models/StyleTypes';
-import { generateTotalStyleSvg, convertSvgToPngDataUrl } from '../utils/styleImageGenerator';
+import { generateTotalStyleSvg, convertSvgToPngDataUrl, OutfitType, detectOutfitType } from '../utils/styleImageGenerator';
 import { Download, Sparkles, Image as ImageIcon, ZoomIn, X, Check, RefreshCw } from 'lucide-react';
-import { motion } from 'motion/react';
 
 interface TotalStyleBoardCardProps {
   profile: StyleProfile;
@@ -11,12 +10,22 @@ interface TotalStyleBoardCardProps {
   luckyItemEmoji?: string;
 }
 
+const OUTFIT_OPTIONS: { id: OutfitType | 'auto'; label: string; emoji: string }[] = [
+  { id: 'auto', label: 'おすすめ', emoji: '✨' },
+  { id: 'onepiece', label: 'ワンピース', emoji: '👗' },
+  { id: 'salopette', label: 'サロペット', emoji: '👖' },
+  { id: 'skirt_girly', label: 'スカート', emoji: '🎀' },
+  { id: 'shorts_sporty', label: 'ショーパン', emoji: '🏃‍♀️' },
+  { id: 'wide_pants', label: 'ワイドパンツ', emoji: '👟' },
+];
+
 export const TotalStyleBoardCard: React.FC<TotalStyleBoardCardProps> = ({
   profile,
   aiAdvice,
   luckyItemName,
   luckyItemEmoji,
 }) => {
+  const [selectedOutfitChoice, setSelectedOutfitChoice] = useState<OutfitType | 'auto'>('auto');
   const [imageUrl, setImageUrl] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState<boolean>(true);
   const [isZoomOpen, setIsZoomOpen] = useState<boolean>(false);
@@ -32,14 +41,22 @@ export const TotalStyleBoardCard: React.FC<TotalStyleBoardCardProps> = ({
     return `【スタイリストからの提案】\n${profile.typeName}のあなたには、${hair}と${color}を取り入れたコーデが大優勝！清潔感と動きやすさを意識して、今日もとびきりの笑顔で楽しんでね✨`;
   }, [aiAdvice, profile]);
 
+  const activeOutfitType = useMemo<OutfitType>(() => {
+    if (selectedOutfitChoice === 'auto') {
+      return detectOutfitType(profile);
+    }
+    return selectedOutfitChoice;
+  }, [selectedOutfitChoice, profile]);
+
   const svgContent = useMemo(() => {
     return generateTotalStyleSvg({
       profile,
       aiAdvice: effectiveAdvice,
       luckyItemName,
       luckyItemEmoji,
+      selectedOutfitType: activeOutfitType,
     });
-  }, [profile, effectiveAdvice, luckyItemName, luckyItemEmoji]);
+  }, [profile, effectiveAdvice, luckyItemName, luckyItemEmoji, activeOutfitType]);
 
   // Convert SVG to PNG for easy download and cross-platform sharing
   useEffect(() => {
@@ -71,7 +88,8 @@ export const TotalStyleBoardCard: React.FC<TotalStyleBoardCardProps> = ({
     try {
       const link = document.createElement('a');
       link.href = imageUrl;
-      link.download = `${profile.typeName}_おすすめトータルスタイル.png`;
+      const outfitLabel = OUTFIT_OPTIONS.find((o) => o.id === activeOutfitType)?.label || 'コーデ';
+      link.download = `${profile.typeName}_${outfitLabel}_トータルスタイル.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -98,7 +116,7 @@ export const TotalStyleBoardCard: React.FC<TotalStyleBoardCardProps> = ({
             <ImageIcon className="w-5 h-5" />
           </div>
           <div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap">
               <h3 className="text-base sm:text-lg font-black text-slate-800">
                 提案アイテム着用！トータルコーデイラスト（1枚画像）
               </h3>
@@ -146,6 +164,34 @@ export const TotalStyleBoardCard: React.FC<TotalStyleBoardCardProps> = ({
               </>
             )}
           </button>
+        </div>
+      </div>
+
+      {/* 着せ替え切り替えタブ（ワンピース・サロペット・スカート・ショーパンなど） */}
+      <div className="mb-4 bg-white/70 p-2 rounded-2xl border border-pink-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 px-1">
+          <Sparkles className="w-3.5 h-3.5 text-pink-500" />
+          <span>コーデ着せ替え:</span>
+        </div>
+        <div className="flex items-center gap-1.5 flex-wrap w-full sm:w-auto">
+          {OUTFIT_OPTIONS.map((opt) => {
+            const isSelected = selectedOutfitChoice === opt.id;
+            return (
+              <button
+                key={opt.id}
+                id={`outfit-switch-${opt.id}`}
+                onClick={() => setSelectedOutfitChoice(opt.id)}
+                className={`px-2.5 py-1 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1 ${
+                  isSelected
+                    ? 'bg-pink-500 text-white shadow-xs scale-102'
+                    : 'bg-white hover:bg-pink-50 text-slate-600 border border-slate-200/80 hover:border-pink-200'
+                }`}
+              >
+                <span>{opt.emoji}</span>
+                <span>{opt.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

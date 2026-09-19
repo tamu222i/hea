@@ -1,17 +1,26 @@
 import { StyleProfile } from '../domain/models/StyleTypes';
 
+export type OutfitType =
+  | 'onepiece' // ワンピース (Aライン・ティアードワンピ)
+  | 'salopette' // サロペット / サロンペット / オーバーオール
+  | 'skirt_girly' // プリーツスカート・フレアスカート
+  | 'shorts_sporty' // スポーティショートパンツ
+  | 'wide_pants' // トレンドワイドパンツ
+  | 'jumper_skirt'; // ジャンパースカート
+
 export interface TotalStyleImageOptions {
   profile: StyleProfile;
   aiAdvice: string;
   luckyItemName?: string;
   luckyItemEmoji?: string;
   dateStr?: string;
+  selectedOutfitType?: OutfitType;
 }
 
 /**
  * Determines hair type key based on hair style name and category
  */
-function detectHairStyleType(hairName: string, category: string): 'twintail' | 'ponytail' | 'bun' | 'braid' | 'halfup' | 'bob' | 'long' {
+export function detectHairStyleType(hairName: string, category: string): 'twintail' | 'ponytail' | 'bun' | 'braid' | 'halfup' | 'bob' | 'long' {
   const text = `${hairName} ${category}`.toLowerCase();
   if (text.includes('ツイン') || text.includes('おさげ')) return 'twintail';
   if (text.includes('ポニー') || text.includes('ひとつ結び')) return 'ponytail';
@@ -23,14 +32,55 @@ function detectHairStyleType(hairName: string, category: string): 'twintail' | '
 }
 
 /**
- * Determines outfit type based on category
+ * Determines natural outfit type based on style profile details,
+ * ensuring rich diversity (including onepiece, salopette, skirt, shorts, wide pants).
  */
-function detectOutfitType(category: string): 'skirt_girly' | 'shorts_sporty' | 'skirt_casual' | 'skirt_classic' {
-  const cat = (category || '').toLowerCase();
-  if (cat.includes('sport') || cat.includes('active') || cat.includes('pop')) return 'shorts_sporty';
-  if (cat.includes('classic') || cat.includes('elegant')) return 'skirt_classic';
-  if (cat.includes('casual') || cat.includes('cool') || cat.includes('nature')) return 'skirt_casual';
-  return 'skirt_girly';
+export function detectOutfitType(profile: StyleProfile): OutfitType {
+  const combined = `${profile.typeName} ${profile.category} ${profile.catchphrase} ${profile.schoolFashion.title} ${profile.schoolFashion.items.map((i) => i.name).join(' ')}`.toLowerCase();
+
+  // Explicit keywords
+  if (combined.includes('ワンピ') || combined.includes('ドレス') || combined.includes('お嬢') || combined.includes('清楚') || combined.includes('ロマンティック')) {
+    return 'onepiece';
+  }
+  if (
+    combined.includes('サロペット') ||
+    combined.includes('サロンペット') ||
+    combined.includes('オーバーオール') ||
+    combined.includes('オールインワン') ||
+    combined.includes('アウトドア') ||
+    combined.includes('キャンプ')
+  ) {
+    return 'salopette';
+  }
+  if (combined.includes('ジャンスカ') || combined.includes('ジャンパー') || combined.includes('プレッピー')) {
+    return 'jumper_skirt';
+  }
+  if (combined.includes('ショートパンツ') || combined.includes('ショーパン') || combined.includes('スポーティ') || combined.includes('アクティブ') || combined.includes('ランニング')) {
+    return 'shorts_sporty';
+  }
+  if (combined.includes('ワイド') || combined.includes('カーゴ') || combined.includes('ストリート') || combined.includes('ダンス') || combined.includes('k-pop')) {
+    return 'wide_pants';
+  }
+
+  // Naturally distribute across the 105 styles based on typeName hash so each user experiences diverse outfits
+  const charSum = profile.typeName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const cycle = charSum % 6;
+  switch (cycle) {
+    case 0:
+      return 'onepiece'; // ワンピース
+    case 1:
+      return 'salopette'; // サロペット
+    case 2:
+      return 'skirt_girly'; // ガーリースカート
+    case 3:
+      return 'shorts_sporty'; // ショーパン
+    case 4:
+      return 'onepiece'; // ワンピース (高頻度で出現)
+    case 5:
+      return 'salopette'; // サロペット (高頻度で出現)
+    default:
+      return 'onepiece';
+  }
 }
 
 /**
@@ -55,13 +105,10 @@ function wrapText(text: string, maxCharsPerLine: number, maxLines: number): stri
 
 /**
  * Generates an SVG string of a cute anime/manga style elementary school girl wearing the proposed items!
- * The image features:
- * - A full-body/three-quarter illustration of the girl
- * - Wearing the proposed hair arrangement (twintail, ponytail, bob, bun, half-up, etc.)
- * - Wearing top and bottom clothes in the recommended colors
- * - Wearing / holding the lucky item (ribbon, hairpins, bag/pochette)
- * - Fashion magazine style tags pointing to the exact items she is wearing
- * - AI Stylist advice speech bubble and style profile banner
+ * Features:
+ * - Varied outfits including ワンピース (Onepiece) and サロペット (Salopette/Overall)
+ * - Posed and styled with recommended colors, hair arrangements, and lucky items
+ * - High quality vector illustration ready for smartphone display and PNG download
  */
 export function generateTotalStyleSvg({
   profile,
@@ -69,6 +116,7 @@ export function generateTotalStyleSvg({
   luckyItemName,
   luckyItemEmoji = '🍀',
   dateStr = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }),
+  selectedOutfitType,
 }: TotalStyleImageOptions): string {
   const hair = profile.hairStyles[0] || {
     name: 'ナチュラルスタイル',
@@ -79,7 +127,7 @@ export function generateTotalStyleSvg({
   };
 
   const hairType = detectHairStyleType(hair.name, profile.category);
-  const outfitType = detectOutfitType(profile.category);
+  const outfitType = selectedOutfitType || detectOutfitType(profile);
 
   // Recommended colors
   const primaryColor = profile.recommendedColors[0]?.hex || '#FB7185';
@@ -96,8 +144,7 @@ export function generateTotalStyleSvg({
     .trim();
   const adviceLines = wrapText(cleanAdvice, 32, 3);
 
-  // Girl coordinates & hair rendering
-  // Hair colors: soft chestnut brown with highlights
+  // Character Color Palettes
   const hairBase = '#4A2818';
   const hairDark = '#361A0C';
   const hairLight = '#784326';
@@ -108,7 +155,32 @@ export function generateTotalStyleSvg({
   const eyePupil = '#1A0E08';
   const eyeHighlight = '#FFFFFF';
 
-  // SVG dimensions: 900 x 1280
+  // Outfit metadata for fashion callout tag
+  let outfitTagName = '👗 コーデ・ボトムス';
+  let outfitItemDesc = `${secondaryColorName}コーデ`;
+  let outfitSubtitle = '動きやすさ＆可愛さ満点！';
+  if (outfitType === 'onepiece') {
+    outfitTagName = '👗 ティアードワンピース';
+    outfitItemDesc = `${primaryColorName}のワンピース`;
+    outfitSubtitle = 'Aラインが可愛い1枚主役コーデ♪';
+  } else if (outfitType === 'salopette') {
+    outfitTagName = '👖 サロペットスタイル';
+    outfitItemDesc = `${secondaryColorName}のサロペット`;
+    outfitSubtitle = `${primaryColorName}Tシャツと重ね着！`;
+  } else if (outfitType === 'shorts_sporty') {
+    outfitTagName = '🏃‍♀️ ショートパンツ';
+    outfitItemDesc = `${secondaryColorName}のショーパン`;
+    outfitSubtitle = '元気に走れるアクティブコーデ！';
+  } else if (outfitType === 'wide_pants') {
+    outfitTagName = '✨ トレンドワイドパンツ';
+    outfitItemDesc = `${secondaryColorName}のパンツ`;
+    outfitSubtitle = '大人っぽくて脚長効果も抜群！';
+  } else if (outfitType === 'jumper_skirt') {
+    outfitTagName = '🎀 ジャンパースカート';
+    outfitItemDesc = `${secondaryColorName}のジャンスカ`;
+    outfitSubtitle = '上品＆きれいめなスクールスタイル！';
+  }
+
   return `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1280" width="900" height="1280" style="background:#FFF5F7; font-family:'Hiragino Kaku Gothic ProN', 'Meiryo', 'Segoe UI', sans-serif;">
   <defs>
@@ -133,16 +205,21 @@ export function generateTotalStyleSvg({
       <stop offset="100%" stop-color="#FDE2E4" stop-opacity="0" />
     </radialGradient>
 
-    <!-- Top & Bottom Clothes Gradients -->
-    <linearGradient id="topColorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.25" />
+    <!-- Clothes Gradients -->
+    <linearGradient id="primaryColorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.3" />
       <stop offset="40%" stop-color="${primaryColor}" />
       <stop offset="100%" stop-color="${primaryColor}" />
     </linearGradient>
-    <linearGradient id="bottomColorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.15" />
-      <stop offset="50%" stop-color="${secondaryColor}" />
+    <linearGradient id="secondaryColorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.25" />
+      <stop offset="45%" stop-color="${secondaryColor}" />
       <stop offset="100%" stop-color="${secondaryColor}" />
+    </linearGradient>
+    <linearGradient id="denimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA" />
+      <stop offset="60%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#1D4ED8" />
     </linearGradient>
 
     <!-- Soft Drop Shadow Filter -->
@@ -252,21 +329,39 @@ export function generateTotalStyleSvg({
     <!-- Legs shadow -->
     <ellipse cx="190" cy="745" rx="75" ry="12" fill="#BE185D" opacity="0.15" />
 
-    <!-- Left Leg -->
-    <path d="M 155 520 L 152 640 L 148 680" stroke="${skinBase}" stroke-width="22" stroke-linecap="round" />
-    <path d="M 152 620 L 148 670" stroke="${skinShadow}" stroke-width="18" stroke-linecap="round" opacity="0.25" />
+    ${
+      outfitType === 'wide_pants'
+        ? `
+        <!-- Wide Pants Legs (Covering upper legs down to ankle) -->
+        <path d="M 140 435 L 240 435 L 255 675 L 205 675 L 190 510 L 175 675 L 125 675 Z" fill="url(#secondaryColorGrad)" stroke="#1E293B" stroke-width="2.5" />
+        <!-- Wide Pants Seams & Creases -->
+        <path d="M 152 460 L 152 665" stroke="#000000" stroke-width="1.2" opacity="0.2" />
+        <path d="M 228 460 L 228 665" stroke="#000000" stroke-width="1.2" opacity="0.2" />
+        `
+        : outfitType === 'salopette'
+        ? `
+        <!-- Salopette Pants Legs (Overalls style) -->
+        <path d="M 140 420 L 240 420 L 250 670 L 208 670 L 190 490 L 172 670 L 130 670 Z" fill="url(#denimGrad)" stroke="#1E293B" stroke-width="2.5" />
+        <!-- Rolled up hem cuff -->
+        <rect x="127" y="650" width="46" height="20" rx="4" fill="#93C5FD" stroke="#1E293B" stroke-width="1.5" />
+        <rect x="207" y="650" width="46" height="20" rx="4" fill="#93C5FD" stroke="#1E293B" stroke-width="1.5" />
+        `
+        : `
+        <!-- Bare Legs for Skirt / Onepiece / Shorts -->
+        <!-- Left Leg -->
+        <path d="M 155 520 L 152 640 L 148 680" stroke="${skinBase}" stroke-width="22" stroke-linecap="round" />
+        <path d="M 152 620 L 148 670" stroke="${skinShadow}" stroke-width="18" stroke-linecap="round" opacity="0.25" />
+        <!-- Right Leg -->
+        <path d="M 225 520 L 228 640 L 232 680" stroke="${skinBase}" stroke-width="22" stroke-linecap="round" />
+        <path d="M 228 620 L 232 670" stroke="${skinShadow}" stroke-width="18" stroke-linecap="round" opacity="0.25" />
 
-    <!-- Right Leg -->
-    <path d="M 225 520 L 228 640 L 232 680" stroke="${skinBase}" stroke-width="22" stroke-linecap="round" />
-    <path d="M 228 620 L 232 670" stroke="${skinShadow}" stroke-width="18" stroke-linecap="round" opacity="0.25" />
-
-    <!-- Socks (Cute white socks with accent stripes) -->
-    <!-- Left Sock -->
-    <path d="M 148 640 L 146 685" stroke="#FFFFFF" stroke-width="23" stroke-linecap="round" />
-    <path d="M 136 648 L 160 648" stroke="${primaryColor}" stroke-width="3.5" />
-    <!-- Right Sock -->
-    <path d="M 232 640 L 234 685" stroke="#FFFFFF" stroke-width="23" stroke-linecap="round" />
-    <path d="M 222 648 L 246 648" stroke="${primaryColor}" stroke-width="3.5" />
+        <!-- Socks (Cute socks with accent stripes) -->
+        <path d="M 148 640 L 146 685" stroke="#FFFFFF" stroke-width="23" stroke-linecap="round" />
+        <path d="M 136 648 L 160 648" stroke="${primaryColor}" stroke-width="3.5" />
+        <path d="M 232 640 L 234 685" stroke="#FFFFFF" stroke-width="23" stroke-linecap="round" />
+        <path d="M 222 648 L 246 648" stroke="${primaryColor}" stroke-width="3.5" />
+        `
+    }
 
     <!-- Shoes (Cute trendy sneakers matching secondary/accent color) -->
     <!-- Left Shoe -->
@@ -284,20 +379,58 @@ export function generateTotalStyleSvg({
       <circle cx="28" cy="18" r="3" fill="#FFFFFF" />
     </g>
 
-    <!-- 3. BOTTOMS (SKIRT OR SHORTS - Colored in Recommended Color 2) -->
+    <!-- 3. LOWER GARMENTS / SKIRTS / SHORTS / ONEPIECE LOWER -->
     ${
-      outfitType === 'shorts_sporty'
+      outfitType === 'onepiece'
+        ? `
+        <!-- ONEPIECE SKIRT PART (Flared A-line with tiered frills) -->
+        <path d="M 148 380 Q 190 390 232 380 L 275 550 Q 190 575 105 550 Z" fill="url(#primaryColorGrad)" stroke="#1E293B" stroke-width="2.5" />
+        <!-- Bottom Tier Frills in Accent / White -->
+        <path d="M 105 550 Q 125 565 145 553 Q 165 568 190 555 Q 215 568 235 553 Q 255 565 275 550 L 280 568 Q 190 595 100 568 Z" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.8" />
+        <!-- Ribbon tie at waist -->
+        <ellipse cx="190" cy="385" rx="14" ry="7" fill="${accentColor}" stroke="#B45309" stroke-width="1.5" />
+        <path d="M 183 388 L 175 425 M 197 388 L 205 425" stroke="${accentColor}" stroke-width="3" stroke-linecap="round" />
+        `
+        : outfitType === 'salopette'
+        ? `
+        <!-- SALOPETTE WAIST / HIP SECTION (Denim / Colored Overalls) -->
+        <!-- Center Bib & Waist Area -->
+        <rect x="150" y="330" width="80" height="95" rx="8" fill="url(#denimGrad)" stroke="#1E293B" stroke-width="2.5" />
+        <!-- Left Shoulder Strap with metal buckle -->
+        <path d="M 156 280 L 156 345" stroke="#1D4ED8" stroke-width="10" stroke-linecap="round" />
+        <rect x="151" y="325" width="10" height="12" rx="2" fill="${accentColor}" stroke="#1E293B" stroke-width="1.2" />
+        <!-- Right Shoulder Strap with metal buckle -->
+        <path d="M 224 280 L 224 345" stroke="#1D4ED8" stroke-width="10" stroke-linecap="round" />
+        <rect x="219" y="325" width="10" height="12" rx="2" fill="${accentColor}" stroke="#1E293B" stroke-width="1.2" />
+        <!-- Front Bib Center Pocket (Kangaroo Pocket) -->
+        <path d="M 166 350 L 214 350 L 210 385 L 170 385 Z" fill="#3B82F6" stroke="#FFFFFF" stroke-width="1.5" stroke-dasharray="3 2" />
+        <circle cx="190" cy="365" r="5" fill="${accentColor}" />
+        `
+        : outfitType === 'shorts_sporty'
         ? `
         <!-- Sporty Short Pants in Secondary Color -->
-        <path d="M 140 435 L 240 435 L 255 510 L 205 515 L 190 470 L 175 515 L 125 510 Z" fill="url(#bottomColorGrad)" stroke="#1E293B" stroke-width="2.5" />
+        <path d="M 140 435 L 240 435 L 255 510 L 205 515 L 190 470 L 175 515 L 125 510 Z" fill="url(#secondaryColorGrad)" stroke="#1E293B" stroke-width="2.5" />
         <!-- White side stripes -->
         <path d="M 132 445 L 122 505" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" />
         <path d="M 248 445 L 258 505" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" />
         <path d="M 180 445 L 200 445" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" />
         `
+        : outfitType === 'jumper_skirt'
+        ? `
+        <!-- Jumper Skirt in Secondary Color -->
+        <path d="M 145 350 L 235 350 L 265 530 Q 190 550 115 530 Z" fill="url(#secondaryColorGrad)" stroke="#1E293B" stroke-width="2.5" />
+        <!-- Deep V-Neck cut -->
+        <path d="M 165 350 L 190 410 L 215 350" stroke="#1E293B" stroke-width="2" fill="none" />
+        `
+        : outfitType === 'wide_pants'
+        ? `
+        <!-- High Waist Band for Wide Pants -->
+        <rect x="142" y="420" width="96" height="18" rx="6" fill="${secondaryColor}" stroke="#1E293B" stroke-width="2" />
+        <circle cx="190" cy="429" r="4" fill="${accentColor}" />
+        `
         : `
         <!-- Flared Pleated Skirt in Secondary Color -->
-        <path d="M 145 435 Q 190 442 235 435 L 265 525 Q 190 545 115 525 Z" fill="url(#bottomColorGrad)" stroke="#1E293B" stroke-width="2.5" />
+        <path d="M 145 435 Q 190 442 235 435 L 265 525 Q 190 545 115 525 Z" fill="url(#secondaryColorGrad)" stroke="#1E293B" stroke-width="2.5" />
         <!-- Pleat creases -->
         <path d="M 152 440 L 140 528" stroke="${secondaryColor}" stroke-width="3" opacity="0.6" />
         <path d="M 172 441 L 165 533" stroke="#000000" stroke-width="1.5" opacity="0.25" />
@@ -310,7 +443,7 @@ export function generateTotalStyleSvg({
         `
     }
 
-    <!-- 4. TORSO & TOPS (Colored in Recommended Color 1) -->
+    <!-- 4. TORSO & TOPS -->
     <!-- Neck -->
     <path d="M 178 245 L 178 285 L 202 285 L 202 245 Z" fill="${skinBase}" stroke="${skinShadow}" stroke-width="1.5" />
 
@@ -325,20 +458,45 @@ export function generateTotalStyleSvg({
     <path d="M 273 400 L 282 388" stroke="${skinBase}" stroke-width="5" stroke-linecap="round" />
     <path d="M 278 404 L 289 396" stroke="${skinBase}" stroke-width="5" stroke-linecap="round" />
 
-    <!-- Top Body Clothes -->
-    <path d="M 140 285 Q 190 270 240 285 L 245 440 Q 190 448 135 440 Z" fill="url(#topColorGrad)" stroke="#1E293B" stroke-width="2.5" />
-    <!-- Sleeves -->
-    <!-- Left Sleeve -->
-    <path d="M 148 285 Q 125 305 125 330 Q 140 340 152 320 Z" fill="url(#topColorGrad)" stroke="#1E293B" stroke-width="2" />
-    <!-- Right Sleeve -->
-    <path d="M 232 285 Q 255 305 255 330 Q 240 340 228 320 Z" fill="url(#topColorGrad)" stroke="#1E293B" stroke-width="2" />
+    <!-- Top Body Clothes (Colored in Recommended Color 1) -->
+    ${
+      outfitType === 'onepiece'
+        ? `
+        <!-- Onepiece Bodice -->
+        <path d="M 140 285 Q 190 270 240 285 L 235 390 Q 190 400 145 390 Z" fill="url(#primaryColorGrad)" stroke="#1E293B" stroke-width="2.5" />
+        <!-- Onepiece Cute Ruffle Sleeves -->
+        <path d="M 145 285 Q 120 300 128 325 Q 140 330 150 315 Z" fill="url(#primaryColorGrad)" stroke="#1E293B" stroke-width="2" />
+        <path d="M 235 285 Q 260 300 252 325 Q 240 330 230 315 Z" fill="url(#primaryColorGrad)" stroke="#1E293B" stroke-width="2" />
+        <!-- Sweetheart / Round Collar with lace -->
+        <path d="M 172 285 Q 190 305 208 285" stroke="#FFFFFF" stroke-width="4" fill="none" stroke-linecap="round" />
+        <!-- Chest Buttons -->
+        <circle cx="190" cy="320" r="3" fill="#FFFFFF" stroke="#1E293B" stroke-width="1" />
+        <circle cx="190" cy="345" r="3" fill="#FFFFFF" stroke="#1E293B" stroke-width="1" />
+        `
+        : outfitType === 'salopette'
+        ? `
+        <!-- Inner T-Shirt behind Salopette -->
+        <path d="M 140 285 Q 190 270 240 285 L 245 425 Q 190 435 135 425 Z" fill="url(#primaryColorGrad)" stroke="#1E293B" stroke-width="2.5" />
+        <!-- T-Shirt Sleeves -->
+        <path d="M 148 285 Q 125 305 125 330 Q 140 340 152 320 Z" fill="url(#primaryColorGrad)" stroke="#1E293B" stroke-width="2" />
+        <path d="M 232 285 Q 255 305 255 330 Q 240 340 228 320 Z" fill="url(#primaryColorGrad)" stroke="#1E293B" stroke-width="2" />
+        <!-- Crewneck collar -->
+        <path d="M 172 285 Q 190 300 208 285" stroke="#FFFFFF" stroke-width="4" fill="none" stroke-linecap="round" />
+        `
+        : `
+        <!-- Standard Top / T-Shirt / Blouse -->
+        <path d="M 140 285 Q 190 270 240 285 L 245 440 Q 190 448 135 440 Z" fill="url(#primaryColorGrad)" stroke="#1E293B" stroke-width="2.5" />
+        <!-- Sleeves -->
+        <path d="M 148 285 Q 125 305 125 330 Q 140 340 152 320 Z" fill="url(#primaryColorGrad)" stroke="#1E293B" stroke-width="2" />
+        <path d="M 232 285 Q 255 305 255 330 Q 240 340 228 320 Z" fill="url(#primaryColorGrad)" stroke="#1E293B" stroke-width="2" />
+        <!-- Top Collar / Neckline & Ribbon Accent -->
+        <path d="M 172 285 Q 190 305 208 285" stroke="#FFFFFF" stroke-width="4" fill="none" stroke-linecap="round" />
+        <!-- Chest Cute Graphic / Motif (Heart) -->
+        <path d="M 190 345 C 190 335 180 330 173 336 C 165 344 170 355 190 368 C 210 355 215 344 207 336 C 200 330 190 335 190 345 Z" fill="#FFFFFF" opacity="0.9" stroke="#E11D48" stroke-width="1" />
+        `
+    }
 
-    <!-- Top Collar / Neckline & Ribbon Accent -->
-    <path d="M 172 285 Q 190 305 208 285" stroke="#FFFFFF" stroke-width="4" fill="none" stroke-linecap="round" />
-    <!-- Chest Cute Graphic / Motif (Heart or Star) -->
-    <path d="M 190 345 C 190 335 180 330 173 336 C 165 344 170 355 190 368 C 210 355 215 344 207 336 C 200 330 190 335 190 345 Z" fill="#FFFFFF" opacity="0.9" stroke="#E11D48" stroke-width="1" />
-
-    <!-- Lucky Item: Crossbody Pochette / Bag if lucky item is a bag/charm -->
+    <!-- Lucky Item: Crossbody Pochette / Bag -->
     <g id="girl-lucky-bag">
       <!-- Strap running across body -->
       <path d="M 148 285 Q 190 360 230 425" stroke="#92400E" stroke-width="3.5" fill="none" />
@@ -378,43 +536,29 @@ export function generateTotalStyleSvg({
 
     <!-- Left Eye (Big Sparkling Anime Eye) -->
     <g id="left-eye">
-      <!-- Upper Lash Line -->
       <path d="M 142 188 Q 158 174 174 186" stroke="#1E293B" stroke-width="3.8" fill="none" stroke-linecap="round" />
       <path d="M 172 184 L 178 181" stroke="#1E293B" stroke-width="2" stroke-linecap="round" />
-      <!-- Iris Outer -->
       <ellipse cx="158" cy="192" rx="13" ry="16" fill="${eyeColor}" />
-      <!-- Iris Pupil -->
       <ellipse cx="158" cy="194" rx="9" ry="11" fill="${eyePupil}" />
-      <!-- Sparkle Highlights -->
       <circle cx="154" cy="188" r="5.5" fill="${eyeHighlight}" />
       <circle cx="163" cy="199" r="2.8" fill="${eyeHighlight}" />
-      <!-- Lower Eyelash -->
       <path d="M 147 203 Q 158 207 169 203" stroke="#475569" stroke-width="1.8" fill="none" stroke-linecap="round" />
     </g>
 
     <!-- Right Eye (Big Sparkling Anime Eye) -->
     <g id="right-eye">
-      <!-- Upper Lash Line -->
       <path d="M 206 186 Q 222 174 238 188" stroke="#1E293B" stroke-width="3.8" fill="none" stroke-linecap="round" />
       <path d="M 236 184 L 242 181" stroke="#1E293B" stroke-width="2" stroke-linecap="round" />
-      <!-- Iris Outer -->
       <ellipse cx="222" cy="192" rx="13" ry="16" fill="${eyeColor}" />
-      <!-- Iris Pupil -->
       <ellipse cx="222" cy="194" rx="9" ry="11" fill="${eyePupil}" />
-      <!-- Sparkle Highlights -->
       <circle cx="218" cy="188" r="5.5" fill="${eyeHighlight}" />
       <circle cx="227" cy="199" r="2.8" fill="${eyeHighlight}" />
-      <!-- Lower Eyelash -->
       <path d="M 211 203 Q 222 207 233 203" stroke="#475569" stroke-width="1.8" fill="none" stroke-linecap="round" />
     </g>
 
     <!-- 6. FRONT HAIR & BANGS (Over Face) -->
-    <!-- Hair Base Top -->
     <path d="M 125 175 Q 115 110 190 100 Q 265 110 255 175 Q 240 135 190 135 Q 140 135 125 175 Z" fill="${hairBase}" stroke="${hairDark}" stroke-width="2.5" />
-
-    <!-- Cute Front Bangs with bundles -->
     <path d="M 130 160 Q 142 185 145 198 Q 152 175 160 195 Q 172 172 185 198 Q 192 172 205 198 Q 215 175 225 195 Q 232 178 245 198 Q 248 180 250 160 Q 240 145 190 145 Q 140 145 130 160 Z" fill="${hairBase}" stroke="${hairDark}" stroke-width="2" />
-    <!-- Angel ring hair shine -->
     <ellipse cx="190" cy="130" rx="45" ry="6" fill="#FFFFFF" opacity="0.35" />
 
     <!-- Side Bangs Framing Face -->
@@ -425,7 +569,7 @@ export function generateTotalStyleSvg({
     ${
       hairType === 'twintail'
         ? `
-        <!-- Left Twintail Ribbon (Lucky Item Ribbon/Scrunchie) -->
+        <!-- Left Twintail Ribbon -->
         <g transform="translate(100, 160)">
           <path d="M 10 10 C -5 -5 -10 20 10 15 C 25 20 25 -5 10 10 Z" fill="${primaryColor}" stroke="#BE185D" stroke-width="2" />
           <path d="M 5 15 L -2 30" stroke="${primaryColor}" stroke-width="4" stroke-linecap="round" />
@@ -442,12 +586,12 @@ export function generateTotalStyleSvg({
         `
         : hairType === 'ponytail'
         ? `
-        <!-- High Ponytail Scrunchie (Wearing the Lucky Item!) -->
+        <!-- High Ponytail Scrunchie -->
         <ellipse cx="250" cy="140" rx="14" ry="10" fill="${primaryColor}" stroke="#BE185D" stroke-width="2" />
         <circle cx="250" cy="140" r="5" fill="${accentColor}" />
         `
         : `
-        <!-- Cute Hairpin (Wearing the Lucky Item in hair) -->
+        <!-- Cute Hairpin in hair -->
         <g transform="translate(135, 145)">
           <rect x="0" y="0" width="28" height="6" rx="3" fill="${accentColor}" stroke="#B45309" stroke-width="1.5" />
           <path d="M 14 -2 L 17 4 L 23 4 L 18 8 L 20 14 L 14 10 L 8 14 L 10 8 L 5 4 L 11 4 Z" fill="#F59E0B" stroke="#B45309" stroke-width="1" />
@@ -483,16 +627,16 @@ export function generateTotalStyleSvg({
     <circle cx="465" cy="505" r="4" fill="${primaryColor}" />
   </g>
 
-  <!-- 3. FASHION COORDINATE / BOTTOMS (BOTTOM LEFT) -->
+  <!-- 3. FASHION COORDINATE / DYNAMIC OUTFIT TAG (BOTTOM LEFT) -->
   <g transform="translate(45, 665)" filter="url(#glowTag)">
     <rect width="210" height="74" rx="16" fill="#FFFFFF" stroke="${secondaryColor}" stroke-width="2" />
-    <rect x="12" y="10" width="86" height="20" rx="6" fill="#F0F9FF" />
-    <text x="55" y="24" font-size="11" font-weight="900" fill="#0369A1" text-anchor="middle">👗 コーデ・ボトムス</text>
+    <rect x="12" y="10" width="105" height="20" rx="6" fill="#F0F9FF" />
+    <text x="64" y="24" font-size="11" font-weight="900" fill="#0369A1" text-anchor="middle">${outfitTagName}</text>
     <!-- Color Swatch Circle -->
     <circle cx="24" cy="52" r="10" fill="${secondaryColor}" stroke="#FFFFFF" stroke-width="2" />
-    <text x="42" y="52" font-size="14" font-weight="900" fill="#1E293B">${secondaryColorName}コーデ</text>
-    <text x="42" y="66" font-size="11" font-weight="700" fill="#64748B">動きやすさ＆着回し抜群！</text>
-    <!-- Pointer Line to Girl's Skirt/Shorts -->
+    <text x="42" y="52" font-size="14" font-weight="900" fill="#1E293B">${outfitItemDesc}</text>
+    <text x="42" y="66" font-size="11" font-weight="700" fill="#64748B">${outfitSubtitle}</text>
+    <!-- Pointer Line to Girl's Outfit -->
     <path d="M 210 37 L 285 37 L 380 0" stroke="${secondaryColor}" stroke-width="2" stroke-dasharray="4 4" fill="none" />
     <circle cx="425" cy="665" r="4" fill="${secondaryColor}" />
   </g>

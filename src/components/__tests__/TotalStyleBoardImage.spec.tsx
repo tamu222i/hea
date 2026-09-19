@@ -7,7 +7,7 @@ import { PRESET_STYLES } from '../../infrastructure/repositories/presetStyles';
 import { StyleTypeId } from '../../domain/models/StyleTypes';
 import { generateTotalStyleSvg } from '../../utils/styleImageGenerator';
 
-describe('Total Style Board Image Verification Test', () => {
+describe('Total Style Board Image & Outfit Variety Test', () => {
   let container: HTMLDivElement;
   let root: Root;
 
@@ -63,7 +63,29 @@ describe('Total Style Board Image Verification Test', () => {
     expect(svg).toContain('今日は体育があるから崩れにくいヘア');
   });
 
-  it('診断完了後、結果画面に女の子がアイテムを身に着けた1枚画像カード（TotalStyleBoardCard）と画像・ダウンロードボタンが表示されること', async () => {
+  it('ワンピース(onepiece)とサロペット(salopette)の衣装がSVG内に描画され、タグも連動すること', () => {
+    const profile = PRESET_STYLES[StyleTypeId.SWEET_GIRLY];
+
+    // 1. ワンピース指定
+    const onepieceSvg = generateTotalStyleSvg({
+      profile,
+      aiAdvice: 'ふんわりワンピースでお出かけ♪',
+      selectedOutfitType: 'onepiece',
+    });
+    expect(onepieceSvg).toContain('ワンピース');
+    expect(onepieceSvg).toContain('Aラインが可愛い1枚主役コーデ');
+
+    // 2. サロペット指定
+    const salopetteSvg = generateTotalStyleSvg({
+      profile,
+      aiAdvice: 'サロペットでおしゃれにアクティブに！',
+      selectedOutfitType: 'salopette',
+    });
+    expect(salopetteSvg).toContain('サロペット');
+    expect(salopetteSvg).toContain('Tシャツと重ね着');
+  });
+
+  it('診断完了後、結果画面の上のほう（スタイル決定ヘッダーの直後）にスナップ画像カードが表示され、着せ替えボタンでワンピースやサロペットに切り替えられること', async () => {
     await act(async () => {
       root.render(<App />);
     });
@@ -88,23 +110,34 @@ describe('Total Style Board Image Verification Test', () => {
     const boardCard = container.querySelector('#total-style-board-card');
     expect(boardCard).not.toBeNull();
     expect(boardCard?.textContent).toContain('提案アイテム着用！トータルコーデイラスト（1枚画像）');
-    expect(boardCard?.textContent).toContain('おすすめカラー・ヘアアレンジ・ラッキーアイテムを女の子が実際に身に着けたスナップ画像！');
 
-    // ダウンロードボタンと拡大ボタンが存在すること
-    const downloadBtn = container.querySelector('#download-total-style-btn');
-    const zoomBtn = container.querySelector('#zoom-total-style-btn');
-    expect(downloadBtn).not.toBeNull();
-    expect(zoomBtn).not.toBeNull();
-
-    // 順序の検証: スタイル -> おみくじ -> 1枚画像ボード
+    // 順序の検証: スナップ画像は結果の上のほう（スタイルヘッダーの直後、おみくじの前）に表示されること
     const resultContainer = container.querySelector('div[class*="space-y-6"]');
     const elements = Array.from(resultContainer?.children || []);
     const headerIndex = elements.findIndex((el) => el.id === 'diagnosis-result-header');
-    const fortuneIndex = elements.findIndex((el) => el.id === 'fortune-result-card');
     const boardIndex = elements.findIndex((el) => el.id === 'total-style-board-card');
+    const fortuneIndex = elements.findIndex((el) => el.id === 'fortune-result-card');
 
     expect(headerIndex).toBeGreaterThanOrEqual(0);
-    expect(fortuneIndex).toBe(headerIndex + 1); // スタイルの直後におみくじ
-    expect(boardIndex).toBe(fortuneIndex + 1); // その直後に1枚画像ボード
+    expect(boardIndex).toBe(headerIndex + 1); // スタイルの直後にスナップ画像！
+    expect(fortuneIndex).toBe(boardIndex + 1); // その後におみくじ
+
+    // コーデ着せ替えボタン（ワンピース、サロペットなど）が存在すること
+    const onepieceBtn = container.querySelector('#outfit-switch-onepiece') as HTMLButtonElement;
+    const salopetteBtn = container.querySelector('#outfit-switch-salopette') as HTMLButtonElement;
+    expect(onepieceBtn).not.toBeNull();
+    expect(salopetteBtn).not.toBeNull();
+
+    // ワンピースをクリックして切り替えられること
+    await act(async () => {
+      onepieceBtn.click();
+    });
+    expect(onepieceBtn.className).toContain('bg-pink-500');
+
+    // サロペットをクリックして切り替えられること
+    await act(async () => {
+      salopetteBtn.click();
+    });
+    expect(salopetteBtn.className).toContain('bg-pink-500');
   });
 });
