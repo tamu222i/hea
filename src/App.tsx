@@ -268,7 +268,7 @@ export default function App() {
                 あなたの魅力を引き出すスタイルタイプがわかるよ！
                 <br className="hidden sm:inline" />
                 全100問の質問から<strong className="text-pink-600 font-black">毎回ちがう5問</strong>をランダム出題♪
-                めったに出ない<strong className="text-amber-600 font-black">伝説のシークレット5種</strong>も見つけてね！
+                めったに出ない<strong className="text-amber-600 font-black">伝説＆増量シークレット</strong>も見つけてね！
               </p>
 
               {/* Feature Highlights */}
@@ -285,7 +285,7 @@ export default function App() {
                 </div>
                 <div className="p-3 rounded-2xl bg-purple-50/70 border border-purple-100">
                   <div className="text-lg mb-0.5">✨</div>
-                  <div className="text-xs font-bold text-slate-800">105スタイル</div>
+                  <div className="text-xs font-bold text-slate-800">205スタイル</div>
                   <div className="text-[10px] text-slate-500">記憶＆保存対応</div>
                 </div>
               </div>
@@ -294,7 +294,7 @@ export default function App() {
               <div className="flex items-center justify-center gap-3 mb-6 flex-wrap">
                 <div className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 flex items-center gap-1.5">
                   <span>📖 図鑑GET:</span>
-                  <span className="font-black text-emerald-950">{discoveredStyleIds.length} / 105種</span>
+                  <span className="font-black text-emerald-950">{discoveredStyleIds.length} / 205種</span>
                 </div>
                 <div className="px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-xs font-bold text-amber-800 flex items-center gap-1.5">
                   <span>🔮 アイテム収集:</span>
@@ -319,7 +319,7 @@ export default function App() {
                     onClick={() => setIsAllTypesModalOpen(true)}
                     className="py-2.5 px-3 rounded-xl bg-slate-50 hover:bg-pink-50 border border-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    <span>📖 全105種スタイル図鑑</span>
+                    <span>📖 全205種スタイル図鑑</span>
                   </button>
 
                   <button
@@ -417,7 +417,7 @@ export default function App() {
                   className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-sm shadow-md shadow-pink-200 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <Heart className="w-4 h-4 fill-white" />
-                  <span>全105タイプ大図鑑</span>
+                  <span>全205タイプ大図鑑</span>
                 </button>
                 <button
                   id="bottom-all-items-btn"
@@ -453,7 +453,7 @@ export default function App() {
       />
 
       <footer className="w-full py-4 text-center text-xs text-slate-400 border-t border-pink-100 bg-white/50">
-        小学生ヘア＆ファッションスタイル診断 • 全105スタイル＆100種ラッキーアイテム占い
+        小学生ヘア＆ファッションスタイル診断 • 全205スタイル＆100種ラッキーアイテム占い
       </footer>
     </div>
   );

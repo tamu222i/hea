@@ -27,7 +27,7 @@ describe('Interactive BDD Test: 図鑑ボタンとモーダルの動作検証', 
     container.remove();
   });
 
-  it('Given スタート画面が表示されているとき、ヘッダーの「全105スタイル図鑑」ボタンをクリックするとモーダルが正常に開き画面が真っ白にならないこと', async () => {
+  it('Given スタート画面が表示されているとき、ヘッダーの「全205スタイル図鑑」ボタンをクリックするとモーダルが正常に開き画面が真っ白にならないこと', async () => {
     await act(async () => {
       root.render(<App />);
     });
@@ -39,15 +39,15 @@ describe('Interactive BDD Test: 図鑑ボタンとモーダルの動作検証', 
       headerBtn.click();
     });
 
-    // Verify modal is open and shows 105 styles without crashing
+    // Verify modal is open and shows 205 styles without crashing
     const modal = container.querySelector('#all-types-modal-dialog');
     expect(modal).not.toBeNull();
     expect(container.textContent).toContain('スタイル大図鑑');
-    expect(container.textContent).toContain('全105種');
-    expect(container.textContent).toContain('シークレット5種');
+    expect(container.textContent).toContain('205種');
+    expect(container.textContent).toContain('シークレット105種');
   });
 
-  it('Given スタート画面が表示されているとき、中央の「全105種類のスタイル図鑑を自由に見る」ボタンをクリックするとモーダルが開き、スタイルを選択すると結果画面が表示されること', async () => {
+  it('Given スタート画面が表示されているとき、中央の「全205種類のスタイル図鑑を自由に見る」ボタンをクリックするとモーダルが開き、スタイルを選択すると結果画面が表示されること', async () => {
     await act(async () => {
       root.render(<App />);
     });
@@ -142,15 +142,15 @@ describe('Interactive BDD Test: 図鑑ボタンとモーダルの動作検証', 
 
     // Filter by secret category button
     const buttons = Array.from(container.querySelectorAll('button'));
-    const secretCategoryBtn = buttons.find((b) => b.textContent?.includes('シークレット (5)'));
+    const secretCategoryBtn = buttons.find((b) => b.textContent?.includes('シークレット (105)'));
     expect(secretCategoryBtn).toBeDefined();
 
     await act(async () => {
       secretCategoryBtn?.click();
     });
 
-    // Only secret styles should be visible in the grid
+    // Only secret styles should be visible in the grid (105 total secrets)
     const visibleCards = container.querySelectorAll('#modal-styles-grid [id^="style-card-"]');
-    expect(visibleCards.length).toBe(5);
+    expect(visibleCards.length).toBe(105);
   });
 });

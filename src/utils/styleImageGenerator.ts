@@ -62,7 +62,7 @@ export function detectOutfitType(profile: StyleProfile): OutfitType {
     return 'wide_pants';
   }
 
-  // Naturally distribute across the 105 styles based on typeName hash so each user experiences diverse outfits
+  // Naturally distribute across the 205 styles based on typeName hash so each user experiences diverse outfits
   const charSum = profile.typeName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const cycle = charSum % 6;
   switch (cycle) {

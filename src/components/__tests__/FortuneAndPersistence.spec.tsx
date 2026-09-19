@@ -95,7 +95,7 @@ describe('Fortune Telling & Persistence Verification Test', () => {
     });
 
     // Verify counter in start screen reflects saved storage
-    expect(container.textContent).toContain('2 / 105種');
+    expect(container.textContent).toContain('2 / 205種');
     expect(container.textContent).toContain('3 / 100種');
 
     // Open book modal

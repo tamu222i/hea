@@ -8,11 +8,11 @@ import { HairArrangementCard } from '../HairArrangementCard';
 import { FashionCoordCard } from '../FashionCoordCard';
 import { AiStylistConsultant } from '../AiStylistConsultant';
 
-describe('Feature: All 105 styles render without runtime errors in Result view', () => {
+describe('Feature: All 205 styles render without runtime errors in Result view', () => {
   const styles = Object.values(PRESET_STYLES);
 
-  it('has 105 styles in PRESET_STYLES', () => {
-    expect(styles.length).toBe(105);
+  it('has 205 styles in PRESET_STYLES', () => {
+    expect(styles.length).toBe(205);
   });
 
   styles.forEach((profile) => {
